@@ -1,0 +1,175 @@
+# OpenAPI version identifier - required for OpenAPI 3.0 domains
+openapi: 3.1.0
+
+#######################
+# Optional info section
+#######################
+info:
+  title: Blackmagic Lens Control Components
+  description: Lens controls component for Blackmagic REST APIs
+  version: '0.1.0'
+
+components:
+
+  ####################
+  # Common data models
+  ####################
+  schemas:
+    GetIris:
+      type: object
+      properties:
+        continuousApertureAutoExposure:
+          type: boolean
+          description: Is Aperture controlled by auto exposure
+        apertureStop:
+          type: number
+          description: Aperture stop value
+        normalised:
+          type: number
+          description: Normalised value
+        apertureNumber:
+          type: number
+          description: Aperture number
+    Iris:
+      type: object
+      properties:
+        apertureStop:
+          type: number
+          description: Aperture stop value
+        normalised:
+          type: number
+          description: Normalised value
+        apertureNumber:
+          type: number
+          description: Aperture number
+    Zoom:
+      type: object
+      properties:
+        focalLength:
+          type: integer
+          description: Focal length in mm
+        normalised:
+          type: number
+          description: Normalised value
+    Focus:
+      type: object
+      properties:
+        focus:
+          type: number
+          description: Normalised value
+
+  ####################
+  # Common parameters
+  ####################
+  parameters: {}
+  
+  #######################
+  # Common request bodies
+  #######################
+  requestBodies: {}
+
+  ####################
+  # Common responses
+  ####################
+  responses: {}
+
+  #########################
+  # Common headers
+  # (except request headers - they are defined as parameters)
+  #########################
+  headers: {}
+
+  #######################
+  # Common path items
+  #######################
+  pathitems:
+    lens.iris:
+      get:
+        operationId: getLensIris
+        summary: Get lens’ aperture.
+        responses:
+          200:
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetIris'
+      put:
+        operationId: putLensIris   
+        summary: Set lens’ aperture.
+        requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Iris'
+        responses:
+          200:
+            description: OK
+    lens.zoom:
+      get:
+        operationId: getLensZoom
+        summary: Get lens’ zoom.
+        responses:
+          200:
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Zoom'
+      put:
+        operationId: putLensZoom 
+        summary: Set lens’ aperture.
+        requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Zoom'
+        responses:
+          200:
+            description: OK
+    lens.focus:
+      get:
+        operationId: getLensFocus
+        summary: Get lens’ focus.
+        responses:
+          200:
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Focus'
+      put:
+        operationId: putLensFocus
+        summary: Set lens’ focus.
+        requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Focus'
+        responses:
+          200:
+            description: OK
+    lens.focus.doAutoFocus:
+      put:
+        operationId: putLensDoAutoFocus
+        summary: Perform auto focus.
+        responses:
+          200:
+            description: OK
+
+  ######################################
+  # Common examples of input/output data
+  ######################################
+  examples:  {}
+
+  #########################
+  # Common link definitions
+  # See: https://swagger.io/docs/specification/links/
+  #########################
+  links: {}
+
+  #########################
+  # Common callback definitions
+  # See: https://swagger.io/docs/specification/callbacks/
+  #########################
+  callbacks: {}
