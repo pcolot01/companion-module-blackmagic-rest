@@ -61,24 +61,51 @@ Tools from https://swagger.io/ and https://openapistack.co/
 REM Generation of server stub server to simulate the camera
 REM based on https://github.com/openapistack/openapi-backend/tree/main/examples/express-ts-mock
 
+
 REM Installation from project source
+
+git submodule update --recursive
 
 npm install
 
+npm run start
+
+
+
 Try the endpoints:
 
-curl -i http://localhost:9000/getIris
-curl -i http://localhost:9000/getIris/1
-curl -i -X POST -d {} http://localhost:9000/putIris
-
+curl -i http://localhost:9000/lens/iris
+curl -X PUT -i http://localhost:9000/lens/iris -H "Content-Type: application/json" -d "{\"apertureStop\":95.3, \"normalised\":91, \"apertureNumber\":93.2}"
 
 
 
 ============== Annex ================
 
+REM API specification
+
+cd MyLocalGitHub
+
+git clone https://github.com/pcolot01/BlackmagicRestOpenApi BlackmagicRestOpenApi
+
+
 REM building process
 
 REM defining project structure
+
+cd MyLocalGitHub
+
+mkdir companion-module-blackmagic-rest
+
+cd companion-module-blackmagic-rest
+
+mkdir externals
+
+cd externals
+
+git submodule add https://github.com/pcolot01/BlackmagicRestOpenApi.git BlackmagicRestOpenApi
+
+git submodule update --init --recursive
+
 
 cd server
 
@@ -158,6 +185,11 @@ REM Defining scripts and checking dependencies  in package.json
     "wait-on": "^7.2.0"
   }
 }
+
+
+REM generate json without dependencies from OpenApi specification
+
+openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
 
 
 REM setup typescript

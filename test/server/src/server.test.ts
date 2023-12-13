@@ -14,7 +14,7 @@ describe('express-ts example', () => {
     await waitOn({ resources: ['tcp:localhost:9000'] });
   });
 
-  afterAll(() => process.kill(-start.pid));
+  afterAll(() => process.kill(-start.pid!));
 
   test('GET /pets returns 200 with mocked result', async () => {
     const res = await client.get('/pets');

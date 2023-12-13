@@ -56,75 +56,62 @@ See the repository https://github.com/pcolot01/BlackmagicRestOpenApi
 Tools from https://swagger.io/ and https://openapistack.co/
 
 
-========== Server side ===================
-REM Generation of server stub /nodejs-server to test the camera
-
-Set the Camera url in swagger
-Export as server-stub: nodejs-server
-unzp in dir a_directory
-cd a_directory
-read README
-
-
-REM from the Nodejs configured command prompt
-
-npm start
-
-open http://localhost:8080/docs
-
-use the application to send/receive information from the camera
-
-
-
 
 =============== Client side ==============
 
 REM Generation of client stub javascript
 
+npm install
+
+npm start
+
+
+============== Annex ================
+
+REM building process
+
 REM defining project structure
 
-cd project
+cd client
 
 mkdir src
-
 mkdir src\types
+mkdir api
+mkdir dist
 
+REM copy api in api
+
+REM copy api.json in dist
 
 REM initializing old javascript
 
 npm init -y
 
 
-REM install typescript
-
-npm install --save-dev typescript --loglevel verbose  
-
-
 REM defining dev dependencies
 
-REM install axios and axios-client
-
+npm install --save-dev @types/js-yaml --loglevel verbose
+npm install --save-dev @types/node --loglevel verbose
 npm install --save-dev axios --loglevel verbose
 npm install --save-dev openapi-client-axios --loglevel verbose
 npm install --save-dev openapi-client-axios-typegen --loglevel verbose
-
-npm install --save @types/js-yaml --loglevel verbose
-npm install --save @types/node --loglevel verbose
+npm install --save-dev typescript --loglevel verbose 
 
 
-REM generate types from OpenApi specification
 
-npx openapicmd typegen ./PIERRECOLOT_1-Blackmagic_Camera_API-0.1.0-resolved.yaml > src/types/PIERRECOLOT_1-Blackmagic_Camera_API-0.1.0-resolved.d.ts
-REM openapi read ./PIERRECOLOT_1-Blackmagic_Camera_API-0.1.0-resolved.yaml --format=json --dereference --bundle > ./src/PIERRECOLOT_1-Blackmagic_Camera_API-0.1.0-resolved.json
+REM generate json without dependencies from OpenApi specification
+
+openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
+
+
+REM generate typescript types from JSON version of OpenApi specification
+
+npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
 
 
 REM setup typescript
 
 npx tsc --init 
-
-REM set in tsconfig.json:
-
-"outDir": "./dist/",
 
 
 REM set main and scripts in package.json
@@ -159,7 +146,7 @@ REM set main and scripts in package.json
 npm run build
 REM or npm run watch-build
 
-npm start
+
 
 
 
