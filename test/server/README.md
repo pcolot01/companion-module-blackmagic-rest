@@ -56,19 +56,14 @@ See the repository https://github.com/pcolot01/BlackmagicRestOpenApi
 Tools from https://swagger.io/ and https://openapistack.co/
 
 
+
 ========== Server side ===================
 
-REM Generation of server stub server to simulate the camera
-REM based on https://github.com/openapistack/openapi-backend/tree/main/examples/express-ts-mock
-
-
-REM Installation from project source
-
-git submodule update --recursive
 
 npm install
 
-npm run start
+npm start
+REM or npm run start
 
 
 
@@ -78,14 +73,13 @@ curl -i http://localhost:9000/lens/iris
 curl -X PUT -i http://localhost:9000/lens/iris -H "Content-Type: application/json" -d "{\"apertureStop\":95.3, \"normalised\":91, \"apertureNumber\":93.2}"
 
 
-
 ============== Annex ================
 
-REM API specification
+REM building process
 
-cd MyLocalGitHub
-
-git clone https://github.com/pcolot01/BlackmagicRestOpenApi BlackmagicRestOpenApi
+REM defining project structure
+REM Generation of server stub server to simulate the camera
+REM based on https://github.com/openapistack/openapi-backend/tree/main/examples/express-ts-mock
 
 
 REM building process
@@ -94,9 +88,11 @@ REM defining project structure
 
 cd MyLocalGitHub
 
-mkdir companion-module-blackmagic-rest
+cd server
 
-cd companion-module-blackmagic-rest
+mkdir src
+
+mkdir src\types
 
 mkdir externals
 
@@ -105,13 +101,6 @@ cd externals
 git submodule add https://github.com/pcolot01/BlackmagicRestOpenApi.git BlackmagicRestOpenApi
 
 git submodule update --init --recursive
-
-
-cd server
-
-mkdir src
-
-mkdir src\types
 
 
 REM initializing old javascript
@@ -189,7 +178,7 @@ REM Defining scripts and checking dependencies  in package.json
 
 REM generate json without dependencies from OpenApi specification
 
-openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
+openapi read ../../externals/BlackmagicRestOpenApi/api/1.0.0/CameraControls.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/1.0.0/CameraControls.json
 
 
 REM setup typescript

@@ -79,10 +79,6 @@ mkdir src\types
 mkdir api
 mkdir dist
 
-REM copy api in api
-
-REM copy api.json in dist
-
 REM initializing old javascript
 
 npm init -y
@@ -96,17 +92,6 @@ npm install --save-dev axios --loglevel verbose
 npm install --save-dev openapi-client-axios --loglevel verbose
 npm install --save-dev openapi-client-axios-typegen --loglevel verbose
 npm install --save-dev typescript --loglevel verbose 
-
-
-
-REM generate json without dependencies from OpenApi specification
-
-openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
-
-
-REM generate typescript types from JSON version of OpenApi specification
-
-npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
 
 
 REM setup typescript
@@ -142,8 +127,33 @@ REM set main and scripts in package.json
   }
 }
 
+REM version 0.1.0
 
-npm run build
+REM generate json without dependencies from OpenApi specification
+
+openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
+
+
+REM generate typescript types from JSON version of OpenApi specification
+
+npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
+
+
+
+REM version 1.0.0
+
+
+REM generate json without dependencies from OpenApi specification
+
+openapi read ../../externals/BlackmagicRestOpenApi/api/1.0.0/CameraControls.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/1.0.0/CameraControls.json
+
+
+REM generate typescript types from JSON version of OpenApi specification
+
+npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/1.0.0/CameraControls.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
+
+npm install 
+REM or npm run build
 REM or npm run watch-build
 
 
