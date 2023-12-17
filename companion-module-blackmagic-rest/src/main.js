@@ -1,20 +1,19 @@
 const { InstanceBase, InstanceStatus, runEntrypoint } = require('@companion-module/base');
-const UpgradeScripts = require('./src/upgrades');
+const UpgradeScripts = require('./utils/upgrades');
+const utils = require('./utils/utils');
+const variables = require('./utils/variables');
 
-const config = require('./src/config');
+const config = require('./controllers/config');
+const actions = require('./controllers/actions');
+const feedbacks = require('./controllers/feedbacks');
+const presets = require('./controllers/presets');
 
-const actions = require('./src/actions');
-const feedbacks = require('./src/feedbacks');
-const variables = require('./src/variables');
-
-const presets = require('./src/presets');
-
-const utils = require('./src/utils');
-
-class blackmagicRestInstance extends InstanceBase {
+class ModuleInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
 
+		console.log("blackmagicRestInstance constructor")
+		
 		// Assign the methods from the listed files to this class
 		Object.assign(this, {
 			...config,
@@ -31,10 +30,12 @@ class blackmagicRestInstance extends InstanceBase {
 	}
 
 	async init(config) {
+		console.log("blackmagicRestInstance init");
 		this.configUpdated(config);
 	}
 
 	async destroy() {
+		console.log("blackmagicRestInstance destroy");
 		this.clearTimer();
 	}
 
@@ -63,4 +64,4 @@ class blackmagicRestInstance extends InstanceBase {
 	}
 }
 
-runEntrypoint(blackmagicRestInstance, UpgradeScripts);
+runEntrypoint(ModuleInstance, UpgradeScripts);

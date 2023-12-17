@@ -12,14 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.rest = void 0;
 const fs_1 = __importDefault(require("fs"));
 const openapi_client_axios_1 = __importDefault(require("openapi-client-axios"));
-const jsonData = JSON.parse(fs_1.default.readFileSync('../../externals/BlackmagicRestOpenApi/dist/1.0.0/BlackmagicCameraControlRestAPI.json', { encoding: 'utf-8' }));
-const api = new openapi_client_axios_1.default({ definition: jsonData, withServer: 0 });
-api.withServer('Local Mocking');
+const jsonData = JSON.parse(fs_1.default.readFileSync('./src/types/BlackmagicCameraControlRestAPI.json', { encoding: 'utf-8' }));
+const api = new openapi_client_axios_1.default({ definition: jsonData, withServer: 'Local Mocking' });
+//api.withServer('Local Mocking');
 // by server object (override)
 // api.withServer({ url: 'http://localhost:8080/control/api/v1/', description: 'Test server mockup by Swagger' });
-function main() {
+function rest() {
     return __awaiter(this, void 0, void 0, function* () {
         const client = yield api.init();
         const irisResponse = yield client.getLensIris();
@@ -30,4 +31,4 @@ function main() {
         console.log('putIris request', irisRequest.status, irisRequest.data);
     });
 }
-main();
+exports.rest = rest;

@@ -1,7 +1,7 @@
 module.exports = {
 	initVariables: function () {
 		let self = this;
-		let variables = []
+		let variables = [];
 
 		variables.push({ variableId: 'variable1', name: 'My first variable' });
 		variables.push({ variableId: 'variable2', name: 'My second variable' });

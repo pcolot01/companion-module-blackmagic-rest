@@ -1,0 +1,39 @@
+{
+	"name": "blackmagic-rest",
+	"shortname": "blackmagic-rest",
+	"description": "Module to control Blackmagic cameras thru REST interface",
+	"version": "1.0.0",
+	"main": "src/main.js",
+	"scripts": {
+	   "postinstall": "npm run build",
+        "build": "tsc",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"format": "prettier --write ."
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/pcolot01/companion-module-blackmagic-rest.git"
+	},
+	"bugs": "https://github.com/pcolot01/companion-module-blackmagic-rest/issues",
+	"maintainers": [
+		{
+			"name": "Laurent Eyen",
+			"email": "Laurent.Eyen@gmail.com"
+		}
+	],
+	"dependencies": {
+		"@companion-module/base": "~1.5.1",
+		"node-rest-client": "^3.1.1"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^1.4.1",
+        "@types/node": "^20.10.4",
+        "axios": "^1.6.2",
+        "openapi-client-axios": "^7.4.0",
+        "openapi-client-axios-typegen": "^7.4.1",
+        "typescript": "^5.3.3",	
+		"prettier": "^2.8.3"
+	},
+	"prettier": "@companion-module/tools/.prettierrc.json"
+}

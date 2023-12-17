@@ -1,9 +1,9 @@
 {
-	"id": "blackmagic-rest",
-	"name": "blackmagic-rest",
-	"shortname": "blackmagic-rest",
+	"id": "Blackmagic-rest",
+	"name": "Blackmagic-rest",
+	"shortname": "Blackmagic-rest",
 	"description": "Module to control Blackmagic cameras thru REST interface",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/pcolot01/companion-module-blackmagic-rest.git",
 	"bugs": "https://github.com/pcolot01/companion-module-blackmagic-rest/issues",
@@ -17,10 +17,10 @@
 		"type": "node18",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
-		"entrypoint": "../main.js"
+		"entrypoint": "../src/main.js"
 	},
-	"legacyIds": ["KOKO"],
+	"legacyIds": [],
 	"manufacturer": "KOKO",
-	"products": ["Recording"],
-	"keywords": ["Recording Studio","Music", "Sounds", "Events"]
+	"products": ["Blackmagic-rest"],
+	"keywords": ["Recording Studio","Recording","Music", "Sounds", "Events"]
 }

@@ -10,7 +10,8 @@ const app = express();
 app.use(express.json());
 
 const api = new OpenAPIBackend({
-  definition: path.join(__dirname, '../../../externals/BlackmagicRestOpenApi/dist/', '0.1.0/BlackmagicCameraControlRestAPI.json')
+  definition: path.join(__dirname, '../../../../externals/BlackmagicRestOpenApi/dist/', '0.1.0/BlackmagicCameraControlRestAPI.json'),
+  apiRoot: "/control/api/v1",
 });
 
 

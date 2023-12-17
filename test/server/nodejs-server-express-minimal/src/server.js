@@ -11,7 +11,8 @@ const morgan_1 = __importDefault(require("morgan"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const api = new openapi_backend_1.default({
-    definition: path_1.default.join(__dirname, '../../../externals/BlackmagicRestOpenApi/dist/', '0.1.0/BlackmagicCameraControlRestAPI.json')
+    definition: path_1.default.join(__dirname, '../../../../externals/BlackmagicRestOpenApi/dist/', '0.1.0/BlackmagicCameraControlRestAPI.json'),
+    apiRoot: "/control/api/v1",
 });
 api.init();
 // handler for getLensIris operation in BlackmagicCameraControlRestAPI.yaml

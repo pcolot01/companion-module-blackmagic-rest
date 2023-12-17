@@ -1,0 +1,3459 @@
+openapi: 3.0.0
+info:
+  title: REST API for Blackmagic camera
+  description: "Blackmagic camera REST API supporting TransportControl, LensControl"
+  version: 1.0.0
+servers:
+- url: /control/api/v1
+  description: Subpath declaring the interface version
+- url: http://localhost:9000/control/api/v1
+  description: Local Mocking
+- url: https://camera1/control/api/v1
+  description: Camera1 to be declare in DNS or Hosts file
+- url: https://camera2/control/api/v1
+  description: Camera2 to be declare in DNS or Hosts file
+- url: https://camera3/control/api/v1
+  description: Camera3 to be declare in DNS or Hosts file
+- url: https://camera4/control/api/v1
+  description: Camera4 to be declare in DNS or Hosts file
+- url: https://camera5/control/api/v1
+  description: Camera5 to be declare in DNS or Hosts file
+- url: https://camera6/control/api/v1
+  description: Camera6 to be declare in DNS or Hosts file
+paths:
+  /event/list:
+    get:
+      summary: Get the list of events that can be subscribed to using the websocket
+        API.
+      operationId: getEventList
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+      x-swagger-router-controller: Default
+  /media/workingset:
+    get:
+      summary: Get the list of media devices currently in the working set.
+      operationId: getMediaWorkingset
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+      x-swagger-router-controller: Default
+  /media/active:
+    get:
+      summary: Get the currently active media device.
+      operationId: getMediaActive
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the currently active media device.
+      operationId: putMediaActive
+      requestBody:
+        description: Set the specified index to be active
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/media_active_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /media/devices/doformatSupportedFilesystems:
+    get:
+      summary: Get the list of filesystems available to format the device.
+      operationId: getMediaDevicesDoformatSupportedFilesystems
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - ExFat
+                - HFS
+                items:
+                  type: string
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+  /media/devices/{deviceName}:
+    get:
+      summary: Get information about the selected device.
+      operationId: getMediaDevicesDeviceName
+      parameters:
+      - name: deviceName
+        in: path
+        description: "Device name of the media device, as returned by deviceName member\
+          \ of Workingset or ActiveMedia"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+      x-swagger-router-controller: Default
+  /media/devices/{deviceName}/doformat:
+    get:
+      summary: "Get a format key, used to format the device with a put request."
+      operationId: getMediaDevicesDeviceNameDoformat
+      parameters:
+      - name: deviceName
+        in: path
+        description: "Device name of the media device, as returned by deviceName member\
+          \ of Workingset or ActiveMedia"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_4'
+      x-swagger-router-controller: Default
+    put:
+      summary: Perform a format of the media device.
+      operationId: putMediaDevicesDeviceNameDoformat
+      parameters:
+      - name: deviceName
+        in: path
+        description: "Device name of the media device, as returned by deviceName member\
+          \ of Workingset or ActiveMedia"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deviceName_doformat_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /system:
+    get:
+      summary: Get device system information.
+      operationId: getSystem
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_5'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/supportedCodecFormats:
+    get:
+      summary: Get the list of supported codecs.
+      operationId: getSystemSupportedCodecFormats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_6'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/codecFormat:
+    get:
+      summary: Get the currently selected codec.
+      operationId: getSystemCodecFormat
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_7'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the codec.
+      operationId: putSystemCodecFormat
+      requestBody:
+        description: Update the system codec
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/system_codecFormat_body'
+      responses:
+        "204":
+          description: No Content
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/videoFormat:
+    get:
+      summary: Get the currently selected video format.
+      operationId: getSystemVideoFormat
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_8'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the video format.
+      operationId: putSystemVideoFormat
+      requestBody:
+        description: Update the system video format
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/system_videoFormat_body'
+      responses:
+        "204":
+          description: No Content
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/supportedVideoFormats:
+    get:
+      summary: Get the list of supported video formats for the current system state.
+      operationId: getSystemSupportedVideoFormats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_9'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/supportedFormats:
+    get:
+      summary: Get supported formats.
+      operationId: getSystemSupportedFormats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_10'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /system/format:
+    get:
+      summary: Get current format.
+      operationId: getSystemFormat
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_11'
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the format.
+      operationId: putSystemFormat
+      requestBody:
+        description: Update the system format
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/system_format_body'
+      responses:
+        "204":
+          description: No Content
+        "501":
+          description: This functionality is not implemented for the device in use.
+      x-swagger-router-controller: Default
+  /timelines/0:
+    get:
+      summary: Get the current playback timeline.
+      operationId: getTimelines0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_12'
+      x-swagger-router-controller: Default
+    delete:
+      summary: Clear the current playback timeline.
+      operationId: deleteTimelines0
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /timelines/0/add:
+    post:
+      summary: Add a clip to the end of the timeline.
+      operationId: postTimelines0Add
+      requestBody:
+        description: Clip information to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/0_add_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0:
+    get:
+      summary: Get device's basic transport status.
+      operationId: getTransports0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_13'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set device's basic transport status.
+      operationId: putTransports0
+      requestBody:
+        description: Set the transport mode
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transports_0_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0/stop:
+    get:
+      summary: Determine if transport is stopped.
+      operationId: getTransports0Stop
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+                description: True when transport mode is InputPreview or when in Output
+                  mode and speed is 0
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+    put:
+      summary: Stop transport.
+      operationId: putTransports0Stop
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0/play:
+    get:
+      summary: Determine if transport is playing.
+      operationId: getTransports0Play
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+                description: True when transport is in Output mode and speed is non-zero
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+    put:
+      summary: Start playing on transport.
+      operationId: putTransports0Play
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0/playback:
+    get:
+      summary: Get playback state.
+      operationId: getTransports0Playback
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_14'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set playback state.
+      operationId: putTransports0Playback
+      requestBody:
+        description: Update playback state
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/0_playback_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0/record:
+    get:
+      summary: Get record state.
+      operationId: getTransports0Record
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_15'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set record state.
+      operationId: putTransports0Record
+      requestBody:
+        description: Update record state
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/0_record_body'
+      responses:
+        "204":
+          description: No Content
+      x-swagger-router-controller: Default
+  /transports/0/timecode:
+    get:
+      summary: Get device's timecode.
+      operationId: getTransports0Timecode
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_16'
+      x-swagger-router-controller: Default
+  /transports/0/timecode/source:
+    get:
+      summary: Get timecode source selected on device
+      operationId: getTransports0TimecodeSource
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_17'
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/input:
+    get:
+      summary: Get the audio input (source and type) for the selected channel
+      operationId: getAudioChannelChannelIndexInput
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently selected input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_18'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the audio input for the selected channel
+      operationId: putAudioChannelChannelIndexInput
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/channelIndex_input_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/input/description:
+    get:
+      summary: Get the description of the current input of the selected channel
+      operationId: getAudioChannelChannelIndexInputDescription
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Description of the current input of the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_19'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/supportedInputs:
+    get:
+      summary: Get the list of supported inputs and their availability to switch to
+        for the selected channel
+      operationId: getAudioChannelChannelIndexSupportedInputs
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its supported inputs are being
+          queried. (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: The list of supported inputs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_20'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/level:
+    get:
+      summary: Get the audio input level for the selected channel
+      operationId: getAudioChannelChannelIndexLevel
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently set level for the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_21'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the audio input level for the selected channel
+      operationId: putAudioChannelChannelIndexLevel
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/channelIndex_level_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/phantomPower:
+    get:
+      summary: Get the audio input phantom power for the selected channel if possible
+      operationId: getAudioChannelChannelIndexPhantomPower
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently set level for the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_22'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the audio phantom power for the selected channel
+      operationId: putAudioChannelChannelIndexPhantomPower
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/channelIndex_phantomPower_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Phantom power is not supported for this input
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/padding:
+    get:
+      summary: Get the audio input padding for the selected channel
+      operationId: getAudioChannelChannelIndexPadding
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently set padding for the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_23'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the audio input padding for the selected channel
+      operationId: putAudioChannelChannelIndexPadding
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/channelIndex_padding_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Padding is not supported for this input
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/lowCutFilter:
+    get:
+      summary: Get the audio input low cut filter for the selected channel
+      operationId: getAudioChannelChannelIndexLowCutFilter
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently set low cut filter for the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_24'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the audio input low cut filter for the selected channel
+      operationId: putAudioChannelChannelIndexLowCutFilter
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/channelIndex_lowCutFilter_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Low cut filter is not supported for this input
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /audio/channel/{channelIndex}/available:
+    get:
+      summary: "Get the audio input's current availability for the selected channel.\
+        \ If unavailable, the source will be muted"
+      operationId: getAudioChannelChannelIndexAvailable
+      parameters:
+      - name: channelIndex
+        in: path
+        description: The index of the channel that its input is being controlled.
+          (Channels index from 0)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Currently set availability for the selected channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_25'
+        "404":
+          description: Channel does not exist
+      x-swagger-router-controller: Default
+  /colorCorrection/lift:
+    get:
+      summary: Get color correction lift
+      operationId: getColorCorrectionLift
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_26'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction lift
+      operationId: putColorCorrectionLift
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_lift_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/gamma:
+    get:
+      summary: Get color correction gamma
+      operationId: getColorCorrectionGamma
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_27'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction gamma
+      operationId: putColorCorrectionGamma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_gamma_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/gain:
+    get:
+      summary: Get color correction gain
+      operationId: getColorCorrectionGain
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_28'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction gain
+      operationId: putColorCorrectionGain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_gain_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/offset:
+    get:
+      summary: Get color correction offset
+      operationId: getColorCorrectionOffset
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_29'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction offset
+      operationId: putColorCorrectionOffset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_offset_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/contrast:
+    get:
+      summary: Get color correction contrast
+      operationId: getColorCorrectionContrast
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_30'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction contrast
+      operationId: putColorCorrectionContrast
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_contrast_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/color:
+    get:
+      summary: Get color correction color properties
+      operationId: getColorCorrectionColor
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_31'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction color properties
+      operationId: putColorCorrectionColor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_color_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /colorCorrection/lumaContribution:
+    get:
+      summary: Get color correction luma contribution
+      operationId: getColorCorrectionLumaContribution
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_32'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set color correction luma contribution
+      operationId: putColorCorrectionLumaContribution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/colorCorrection_lumaContribution_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /lens/iris:
+    get:
+      summary: Get lens' aperture
+      operationId: getLensIris
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_33'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set lens' aperture
+      operationId: putLensIris
+      requestBody:
+        description: "Only a single property need to be selected. If multiple provided,\
+          \ the order of priority is (apertureStop > normalised > apertureNumber)"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/lens_iris_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /lens/zoom:
+    get:
+      summary: Get lens' zoom
+      operationId: getLensZoom
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_34'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set lens' zoom
+      operationId: putLensZoom
+      requestBody:
+        description: "Only a single property need to be selected. If multiple provided,\
+          \ the order of priority is (focalLength > normalised)"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/lens_zoom_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /lens/focus:
+    get:
+      summary: Get lens' focus
+      operationId: getLensFocus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_35'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set lens' focus
+      operationId: putLensFocus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/lens_focus_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /lens/focus/doAutoFocus:
+    put:
+      summary: Perform auto focus
+      operationId: putLensFocusDoAutoFocus
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /presets:
+    get:
+      summary: Get the list of the presets on the camera
+      operationId: getPresets
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_36'
+      x-swagger-router-controller: Default
+    post:
+      summary: Send a preset file to the camera
+      operationId: postPresets
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_37'
+      x-swagger-router-controller: Default
+  /presets/active:
+    get:
+      summary: Get the list of the presets on the camera
+      operationId: getPresetsActive
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_38'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set the active preset on the camera
+      operationId: putPresetsActive
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/presets_active_body'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+  /presets/{presetName}:
+    get:
+      summary: Download the preset file
+      operationId: getPresetsPresetName
+      parameters:
+      - name: presetName
+        in: path
+        description: name of the preset file
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                x-content-type: application/octet-stream
+      x-swagger-router-controller: Default
+    put:
+      summary: "Update a preset on the camera if it exists, if not create a preset\
+        \ and save current state with the presetName"
+      operationId: putPresetsPresetName
+      parameters:
+      - name: presetName
+        in: path
+        description: name of the preset file
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+    delete:
+      summary: Delete a preset from a camera if exists
+      operationId: deletePresetsPresetName
+      parameters:
+      - name: presetName
+        in: path
+        description: name of the preset file
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+      x-swagger-router-controller: Default
+  /video/iso:
+    get:
+      summary: Get current ISO
+      operationId: getVideoIso
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_39'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set current ISO
+      operationId: putVideoIso
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_iso_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/gain:
+    get:
+      summary: Get current gain value in decibels
+      operationId: getVideoGain
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_40'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set current gain value
+      operationId: putVideoGain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_gain_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/whiteBalance:
+    get:
+      summary: Get current white balance
+      operationId: getVideoWhiteBalance
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_41'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set current white balance
+      operationId: putVideoWhiteBalance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_whiteBalance_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/whiteBalance/doAuto:
+    put:
+      summary: Set current white balance automatically
+      operationId: putVideoWhiteBalanceDoAuto
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/ndFilter:
+    get:
+      summary: Get ND filter stop
+      operationId: getVideoNdFilter
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_42'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set ND filter stop
+      operationId: putVideoNdFilter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_ndFilter_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/ndFilter/displayMode:
+    get:
+      summary: Get ND filter display mode on the camera
+      operationId: getVideoNdFilterDisplayMode
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_43'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set ND filter display mode on the camera
+      operationId: putVideoNdFilterDisplayMode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ndFilter_displayMode_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/shutter:
+    get:
+      summary: Get current shutter. Will return either shutter speed or shutter angle
+        depending on shutter measurement in device settings
+      operationId: getVideoShutter
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_44'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set current shutter
+      operationId: putVideoShutter
+      requestBody:
+        description: "Only a single property needs to be selected. If more than one\
+          \ is provided, the order of priority is (shutterSpeed > shutterAngle)"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_shutter_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+  /video/autoExposure:
+    get:
+      summary: Get current auto exposure mode
+      operationId: getVideoAutoExposure
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_45'
+      x-swagger-router-controller: Default
+    put:
+      summary: Set auto exposure
+      operationId: putVideoAutoExposure
+      requestBody:
+        description: Auto exposure mode to set
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/video_autoExposure_body'
+      responses:
+        "200":
+          description: OK
+      x-swagger-router-controller: Default
+components:
+  schemas:
+    eventsList:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            type: string
+            description: List of events that can be subscribed to using the websocket
+              API
+    Workingset:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: The fixed size of this device's working set
+        workingset:
+          required:
+          - index
+          type: array
+          items:
+            $ref: '#/components/schemas/Workingset_workingset'
+    ActiveMedia:
+      type: object
+      properties:
+        workingsetIndex:
+          type: integer
+          description: Working set index of the active media device
+          example: 0
+        deviceName:
+          type: string
+          description: Internal device name of this media device
+          example: sd1
+    DoFormatSupportedFilesystems:
+      type: array
+      example:
+      - ExFat
+      - HFS
+      items:
+        type: string
+    MediaDeviceInformation:
+      type: object
+      properties:
+        state:
+          type: string
+          description: The current state of the media device.
+          enum:
+          - None
+          - Scanning
+          - Mounted
+          - Uninitialised
+          - Formatting
+          - RaidComponent
+    FormatKey:
+      type: string
+      description: "The key used to format this device, it must be fetched with the\
+        \ GET request and then provided back with a PUT request"
+    SystemResponse:
+      type: object
+      properties:
+        codecFormat:
+          $ref: '#/components/schemas/system_codecFormat_body'
+        videoFormat:
+          $ref: '#/components/schemas/inline_response_200_8'
+      description: The properties will be populated only with the values that are
+        supported/implemented by the device in use.
+    SupportedCodecFormats:
+      type: object
+      properties:
+        codecs:
+          type: array
+          items:
+            $ref: '#/components/schemas/system_codecFormat_body'
+    CodecFormat:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: ProRes:HQ
+        container:
+          type: string
+          description: Multimedia container format
+          example: MOV
+    SupportedVideoFormats:
+      type: object
+      properties:
+        formats:
+          type: array
+          items:
+            $ref: '#/components/schemas/system_videoFormat_body'
+    FrameRate:
+      type: string
+      example: "29.97"
+      enum:
+      - "23.98"
+      - "24.00"
+      - "24"
+      - "25.00"
+      - "25"
+      - "29.97"
+      - "30.00"
+      - "30"
+      - "47.95"
+      - "48.00"
+      - "48"
+      - "50.00"
+      - "50"
+      - "59.94"
+      - "60.00"
+      - "60"
+      - "119.88"
+      - "120.00"
+      - "120"
+    VideoFormat:
+      type: object
+      properties:
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "30"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        height:
+          type: number
+          description: Height dimension of video format
+          example: 1920
+        width:
+          type: number
+          description: Width dimension of video format
+          example: 1080
+        interlaced:
+          type: boolean
+          description: Is the display format interlaced?
+          example: false
+    GetVideoFormat:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Video format serialised as a string
+          example: 1920x1080p29.97
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "29.97"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        height:
+          type: number
+          description: Height dimension of video format
+          example: 1920
+        width:
+          type: number
+          description: Width dimension of video format
+          example: 1080
+        interlaced:
+          type: boolean
+          description: Is the display format interlaced?
+          example: false
+    Format:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: BRaw:8_1
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "24"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        maxOffSpeedFrameRate:
+          type: number
+          example: 60
+        minOffSpeedFrameRate:
+          type: number
+          example: 5
+        offSpeedEnabled:
+          type: boolean
+          example: false
+        offSpeedFrameRate:
+          type: number
+          example: 60
+        recordResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+        sensorResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+    Resolution:
+      type: object
+      properties:
+        height:
+          type: number
+          description: Height of the resolution
+          example: 2160
+        width:
+          type: number
+          description: Width of the resolution
+          example: 3840
+    SupportedFormats:
+      type: object
+      properties:
+        supportedFormats:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportedFormats_supportedFormats'
+    SupportedFormat:
+      type: object
+      properties:
+        codecs:
+          type: array
+          items:
+            type: string
+            example: BRaw:Q0
+        frameRates:
+          type: array
+          items:
+            type: string
+            example: "29.97"
+            enum:
+            - "23.98"
+            - "24.00"
+            - "24"
+            - "25.00"
+            - "25"
+            - "29.97"
+            - "30.00"
+            - "30"
+            - "47.95"
+            - "48.00"
+            - "48"
+            - "50.00"
+            - "50"
+            - "59.94"
+            - "60.00"
+            - "60"
+            - "119.88"
+            - "120.00"
+            - "120"
+        maxOffSpeedFrameRate:
+          type: number
+          example: 60
+        minOffSpeedFrameRate:
+          type: number
+          example: 5
+        recordResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+        sensorResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+    Timeline:
+      type: object
+      properties:
+        clips:
+          type: array
+          items:
+            $ref: '#/components/schemas/Timeline_clips'
+    AddClip:
+      oneOf:
+      - type: object
+        properties:
+          clips:
+            type: integer
+            description: Unique ID used to identify this clip
+            example: 1
+      - type: object
+        properties:
+          clips:
+            type: array
+            example:
+            - 1
+            - 2
+            - 3
+            items:
+              type: integer
+              description: Unique ID used to identify this clip
+    TransportResponse:
+      type: object
+      properties:
+        mode:
+          type: string
+          description: Transport mode.
+          enum:
+          - InputPreview
+          - InputRecord
+          - Output
+    Stopped:
+      type: object
+      properties:
+        stopped:
+          type: boolean
+      description: True when transport mode is InputPreview or when in Output mode
+        and speed is 0
+    Playback:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Play
+          - Jog
+          - Shuttle
+          - Var
+        loop:
+          type: boolean
+          description: When true playback loops from the end of the timeline to the
+            beginning of the timeline
+        singleClip:
+          type: boolean
+          description: When true playback loops from the end of the current clip to
+            the beginning of the current clip
+        speed:
+          type: number
+          description: "Playback Speed, 1.0 for normal forward playback"
+        position:
+          type: integer
+          description: Playback position on the timeline in units of video frames
+    GetRecord:
+      type: object
+      properties:
+        recording:
+          type: boolean
+          description: Is transport in Input Record mode
+    Record:
+      type: object
+      properties:
+        recording:
+          type: boolean
+          description: Is transport in Input Record mode
+        clipName:
+          type: string
+          description: "Used to set the requested clipName to record to, when specifying\
+            \ \"recording\" attribute to True"
+    Timecode:
+      type: object
+      properties:
+        timecode:
+          type: number
+          description: The time of day timecode in units of binary-coded decimal (BCD).
+        clip:
+          type: number
+          description: The position of the clip timecode in units of binary-coded
+            decimal (BCD).
+    TimecodeSource:
+      type: object
+      properties:
+        timecode:
+          type: string
+          enum:
+          - Timecode
+          - Clip
+    input:
+      type: object
+      properties:
+        input:
+          type: string
+          enum:
+          - None
+          - Camera - Left
+          - Camera - Right
+          - Camera - Mono
+          - XLR1 - Mic
+          - XLR1 - Line
+          - XLR2 - Mic
+          - XLR2 - Line
+          - 3.5mm Left - Line
+          - 3.5mm Left - Mic
+          - 3.5mm Right - Line
+          - 3.5mm Right - Mic
+          - 3.5mm Mono - Line
+          - 3.5mm Mono - Mic
+    description:
+      type: object
+      properties:
+        gainRange:
+          $ref: '#/components/schemas/description_gainRange'
+        capabilities:
+          $ref: '#/components/schemas/description_capabilities'
+    supportedInputs:
+      type: object
+      properties:
+        supportedInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/supportedInputs_supportedInputs'
+    level:
+      type: object
+      properties:
+        gain:
+          type: number
+        normalised:
+          type: number
+      description: "The input level of the selected channel. Only one property is\
+        \ required for setting. If both provided, gain will be prioritized and level\
+        \ would be ignored."
+    phantomPower:
+      type: object
+      properties:
+        phantomPower:
+          type: boolean
+    padding:
+      type: object
+      properties:
+        padding:
+          type: boolean
+    lowCutFilter:
+      type: object
+      properties:
+        lowCutFilter:
+          type: boolean
+    available:
+      type: object
+      properties:
+        available:
+          type: boolean
+    Lift:
+      type: object
+      properties:
+        red:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        green:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        blue:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        luma:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+    Gamma:
+      type: object
+      properties:
+        red:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        green:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        blue:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        luma:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+    Gain:
+      type: object
+      properties:
+        red:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        green:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        blue:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        luma:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+    Offset:
+      type: object
+      properties:
+        red:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        green:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        blue:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        luma:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+    Contrast:
+      type: object
+      properties:
+        pivot:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 0.5
+        adjust:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+    Color:
+      type: object
+      properties:
+        hue:
+          maximum: 1
+          minimum: -1
+          type: number
+          default: 0
+        saturation:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+    LumaContribution:
+      type: object
+      properties:
+        lumaContribution:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 1
+    apertureStop:
+      type: number
+      description: Aperture stop value
+    normalised:
+      maximum: 1
+      minimum: 0
+      type: number
+      description: Normalised value
+    apertureNumber:
+      type: number
+      description: Aperture number
+    focalLength:
+      type: integer
+      description: Focal length in mm
+    presetList:
+      type: object
+      properties:
+        presets:
+          type: array
+          description: List of the presets on the camera
+          items:
+            type: string
+    postPresetResponse:
+      type: object
+      properties:
+        presetAdded:
+          type: string
+          description: Name of the preset uploaded
+    activePreset:
+      type: object
+      properties:
+        preset:
+          type: string
+    shutterSpeed:
+      maximum: 50000
+      type: integer
+      description: Shutter speed value in fractions of a second (minimum is sensor
+        frame rate)
+    shutterAngle:
+      maximum: 36000
+      minimum: 100
+      type: integer
+      description: Shutter angle
+    autoExposureMode:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+          - "Off"
+          - Continuous
+          - OneShot
+        type:
+          type: string
+          enum:
+          - ""
+          - Iris
+          - Shutter
+          - "Iris,Shutter"
+          - "Shutter,Iris"
+      description: Auto exposure mode
+    ndFilterDisplayMode:
+      type: string
+      enum:
+      - Stop
+      - Number
+      - Fraction
+    inline_response_200:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            type: string
+            description: List of events that can be subscribed to using the websocket
+              API
+      example:
+        events:
+        - events
+        - events
+    inline_response_200_1:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: The fixed size of this device's working set
+        workingset:
+          required:
+          - index
+          type: array
+          items:
+            $ref: '#/components/schemas/Workingset_workingset'
+      example:
+        size: 0
+        workingset:
+        - volume: My disk
+          remainingRecordTime: 5124087
+          clipCount: 12
+          index: 0
+          remainingSpace: 7817071702016
+          totalSpace: 9817071702016
+          deviceName: sd1
+          activeDisk: false
+        - volume: My disk
+          remainingRecordTime: 5124087
+          clipCount: 12
+          index: 0
+          remainingSpace: 7817071702016
+          totalSpace: 9817071702016
+          deviceName: sd1
+          activeDisk: false
+    inline_response_200_2:
+      type: object
+      properties:
+        workingsetIndex:
+          type: integer
+          description: Working set index of the active media device
+          example: 0
+        deviceName:
+          type: string
+          description: Internal device name of this media device
+          example: sd1
+      example:
+        workingsetIndex: 0
+        deviceName: sd1
+    media_active_body:
+      type: object
+      properties:
+        workingsetIndex:
+          type: integer
+          description: Working set index of the media to become active
+    inline_response_200_3:
+      type: object
+      properties:
+        state:
+          type: string
+          description: The current state of the media device.
+          enum:
+          - None
+          - Scanning
+          - Mounted
+          - Uninitialised
+          - Formatting
+          - RaidComponent
+      example:
+        state: None
+    inline_response_200_4:
+      properties:
+        deviceName:
+          type: string
+          description: Internal device name of this media device
+        key:
+          type: string
+          description: "The key used to format this device, it must be fetched with\
+            \ the GET request and then provided back with a PUT request"
+      example:
+        deviceName: deviceName
+        key: key
+    deviceName_doformat_body:
+      properties:
+        key:
+          type: string
+          description: "The key used to format this device, it must be fetched with\
+            \ the GET request and then provided back with a PUT request"
+        filesystem:
+          type: string
+          description: Filesystem to format to (supportedFilesystems returns list
+            of supported fileSystems)
+        volume:
+          type: string
+          description: Volume name to set for the disk after format
+    inline_response_200_5:
+      type: object
+      properties:
+        codecFormat:
+          $ref: '#/components/schemas/system_codecFormat_body'
+        videoFormat:
+          $ref: '#/components/schemas/inline_response_200_8'
+      description: The properties will be populated only with the values that are
+        supported/implemented by the device in use.
+      example:
+        codecFormat:
+          container: MOV
+          codec: ProRes:HQ
+        videoFormat:
+          frameRate: "29.97"
+          name: 1920x1080p29.97
+          width: 1080
+          interlaced: false
+          height: 1920
+    inline_response_200_6:
+      type: object
+      properties:
+        codecs:
+          type: array
+          items:
+            $ref: '#/components/schemas/system_codecFormat_body'
+      example:
+        codecs:
+        - container: MOV
+          codec: ProRes:HQ
+        - container: MOV
+          codec: ProRes:HQ
+    inline_response_200_7:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: ProRes:HQ
+        container:
+          type: string
+          description: Multimedia container format
+          example: MOV
+      example:
+        container: MOV
+        codec: ProRes:HQ
+    system_codecFormat_body:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: ProRes:HQ
+        container:
+          type: string
+          description: Multimedia container format
+          example: MOV
+      example:
+        container: MOV
+        codec: ProRes:HQ
+    inline_response_200_8:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Video format serialised as a string
+          example: 1920x1080p29.97
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "29.97"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        height:
+          type: number
+          description: Height dimension of video format
+          example: 1920
+        width:
+          type: number
+          description: Width dimension of video format
+          example: 1080
+        interlaced:
+          type: boolean
+          description: Is the display format interlaced?
+          example: false
+      example:
+        frameRate: "29.97"
+        name: 1920x1080p29.97
+        width: 1080
+        interlaced: false
+        height: 1920
+    system_videoFormat_body:
+      type: object
+      properties:
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "30"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        height:
+          type: number
+          description: Height dimension of video format
+          example: 1920
+        width:
+          type: number
+          description: Width dimension of video format
+          example: 1080
+        interlaced:
+          type: boolean
+          description: Is the display format interlaced?
+          example: false
+      example:
+        frameRate: "30"
+        width: 1080
+        interlaced: false
+        height: 1920
+    inline_response_200_9:
+      type: object
+      properties:
+        formats:
+          type: array
+          items:
+            $ref: '#/components/schemas/system_videoFormat_body'
+      example:
+        formats:
+        - frameRate: "30"
+          width: 1080
+          interlaced: false
+          height: 1920
+        - frameRate: "30"
+          width: 1080
+          interlaced: false
+          height: 1920
+    inline_response_200_10:
+      type: object
+      properties:
+        supportedFormats:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportedFormats_supportedFormats'
+      example:
+        supportedFormats:
+        - recordResolution:
+            width: 3840
+            height: 2160
+          frameRates:
+          - "29.97"
+          - "29.97"
+          codecs:
+          - BRaw:Q0
+          - BRaw:Q0
+          sensorResolution: null
+          minOffSpeedFrameRate: 5
+          maxOffSpeedFrameRate: 60
+        - recordResolution:
+            width: 3840
+            height: 2160
+          frameRates:
+          - "29.97"
+          - "29.97"
+          codecs:
+          - BRaw:Q0
+          - BRaw:Q0
+          sensorResolution: null
+          minOffSpeedFrameRate: 5
+          maxOffSpeedFrameRate: 60
+    inline_response_200_11:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: BRaw:8_1
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "24"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        maxOffSpeedFrameRate:
+          type: number
+          example: 60
+        minOffSpeedFrameRate:
+          type: number
+          example: 5
+        offSpeedEnabled:
+          type: boolean
+          example: false
+        offSpeedFrameRate:
+          type: number
+          example: 60
+        recordResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+        sensorResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+      example:
+        codec: BRaw:8_1
+        frameRate: "24"
+        recordResolution:
+          width: 3840
+          height: 2160
+        sensorResolution: null
+        offSpeedFrameRate: 60
+        minOffSpeedFrameRate: 5
+        offSpeedEnabled: false
+        maxOffSpeedFrameRate: 60
+    systemformat_recordResolution:
+      type: object
+      properties:
+        height:
+          type: number
+          description: Height of the resolution
+          example: 2160
+        width:
+          type: number
+          description: Width of the resolution
+          example: 3840
+      example:
+        width: 3840
+        height: 2160
+    system_format_body:
+      type: object
+      properties:
+        codec:
+          type: string
+          description: Currently selected codec
+          example: BRaw:8_1
+        frameRate:
+          type: string
+          description: Frame rate
+          example: "24"
+          enum:
+          - "23.98"
+          - "24.00"
+          - "24"
+          - "25.00"
+          - "25"
+          - "29.97"
+          - "30.00"
+          - "30"
+          - "47.95"
+          - "48.00"
+          - "48"
+          - "50.00"
+          - "50"
+          - "59.94"
+          - "60.00"
+          - "60"
+          - "119.88"
+          - "120.00"
+          - "120"
+        maxOffSpeedFrameRate:
+          type: number
+          example: 60
+        minOffSpeedFrameRate:
+          type: number
+          example: 5
+        offSpeedEnabled:
+          type: boolean
+          example: false
+        offSpeedFrameRate:
+          type: number
+          example: 60
+        recordResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+        sensorResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+    inline_response_200_12:
+      type: object
+      properties:
+        clips:
+          type: array
+          items:
+            $ref: '#/components/schemas/Timeline_clips'
+      example:
+        clips:
+        - frameCount: 90000
+          clipUniqueId: 1
+        - frameCount: 90000
+          clipUniqueId: 1
+    "0_add_body":
+      oneOf:
+      - type: object
+        properties:
+          clips:
+            type: integer
+            description: Unique ID used to identify this clip
+            example: 1
+      - type: object
+        properties:
+          clips:
+            type: array
+            example:
+            - 1
+            - 2
+            - 3
+            items:
+              type: integer
+              description: Unique ID used to identify this clip
+    inline_response_200_13:
+      type: object
+      properties:
+        mode:
+          type: string
+          description: Transport mode.
+          enum:
+          - InputPreview
+          - InputRecord
+          - Output
+      example:
+        mode: InputPreview
+    transports_0_body:
+      type: object
+      properties:
+        mode:
+          type: string
+          description: Transport mode.
+          enum:
+          - InputPreview
+          - Output
+    inline_response_200_14:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Play
+          - Jog
+          - Shuttle
+          - Var
+        loop:
+          type: boolean
+          description: When true playback loops from the end of the timeline to the
+            beginning of the timeline
+        singleClip:
+          type: boolean
+          description: When true playback loops from the end of the current clip to
+            the beginning of the current clip
+        speed:
+          type: number
+          description: "Playback Speed, 1.0 for normal forward playback"
+        position:
+          type: integer
+          description: Playback position on the timeline in units of video frames
+      example:
+        singleClip: true
+        loop: true
+        position: 6
+        type: Play
+        speed: 0.80082819046101150206595775671303272247314453125
+    "0_playback_body":
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Play
+          - Jog
+          - Shuttle
+          - Var
+        loop:
+          type: boolean
+          description: When true playback loops from the end of the timeline to the
+            beginning of the timeline
+        singleClip:
+          type: boolean
+          description: When true playback loops from the end of the current clip to
+            the beginning of the current clip
+        speed:
+          type: number
+          description: "Playback Speed, 1.0 for normal forward playback"
+        position:
+          type: integer
+          description: Playback position on the timeline in units of video frames
+    inline_response_200_15:
+      type: object
+      properties:
+        recording:
+          type: boolean
+          description: Is transport in Input Record mode
+      example:
+        recording: true
+    "0_record_body":
+      type: object
+      properties:
+        recording:
+          type: boolean
+          description: Is transport in Input Record mode
+        clipName:
+          type: string
+          description: "Used to set the requested clipName to record to, when specifying\
+            \ \"recording\" attribute to True"
+    inline_response_200_16:
+      type: object
+      properties:
+        timecode:
+          type: number
+          description: The time of day timecode in units of binary-coded decimal (BCD).
+        clip:
+          type: number
+          description: The position of the clip timecode in units of binary-coded
+            decimal (BCD).
+      example:
+        timecode: 0.80082819046101150206595775671303272247314453125
+        clip: 6.02745618307040320615897144307382404804229736328125
+    inline_response_200_17:
+      type: object
+      properties:
+        timecode:
+          type: string
+          enum:
+          - Timecode
+          - Clip
+      example:
+        timecode: Timecode
+    inline_response_200_18:
+      type: object
+      properties:
+        input:
+          type: string
+          enum:
+          - None
+          - Camera - Left
+          - Camera - Right
+          - Camera - Mono
+          - XLR1 - Mic
+          - XLR1 - Line
+          - XLR2 - Mic
+          - XLR2 - Line
+          - 3.5mm Left - Line
+          - 3.5mm Left - Mic
+          - 3.5mm Right - Line
+          - 3.5mm Right - Mic
+          - 3.5mm Mono - Line
+          - 3.5mm Mono - Mic
+      example:
+        input: None
+    channelIndex_input_body:
+      type: object
+      properties:
+        input:
+          type: string
+          enum:
+          - None
+          - Camera - Left
+          - Camera - Right
+          - Camera - Mono
+          - XLR1 - Mic
+          - XLR1 - Line
+          - XLR2 - Mic
+          - XLR2 - Line
+          - 3.5mm Left - Line
+          - 3.5mm Left - Mic
+          - 3.5mm Right - Line
+          - 3.5mm Right - Mic
+          - 3.5mm Mono - Line
+          - 3.5mm Mono - Mic
+      example:
+        input: None
+    inline_response_200_19:
+      type: object
+      properties:
+        gainRange:
+          $ref: '#/components/schemas/description_gainRange'
+        capabilities:
+          $ref: '#/components/schemas/description_capabilities'
+      example:
+        gainRange:
+          Min: 0.80082819046101150206595775671303272247314453125
+          Max: 6.02745618307040320615897144307382404804229736328125
+        capabilities:
+          PhantomPower: true
+          Padding:
+            forced: true
+            available: true
+            value: 1.46581298050294517310021547018550336360931396484375
+          LowCutFilter: true
+    inline_response_200_20:
+      type: object
+      properties:
+        supportedInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/supportedInputs_supportedInputs'
+      example:
+        supportedInputs:
+        - schema:
+            input: None
+          available: true
+        - schema:
+            input: None
+          available: true
+    inline_response_200_21:
+      type: object
+      properties:
+        gain:
+          type: number
+        normalised:
+          type: number
+      description: "The input level of the selected channel. Only one property is\
+        \ required for setting. If both provided, gain will be prioritized and level\
+        \ would be ignored."
+      example:
+        normalised: 6.02745618307040320615897144307382404804229736328125
+        gain: 0.80082819046101150206595775671303272247314453125
+    channelIndex_level_body:
+      type: object
+      properties:
+        gain:
+          type: number
+        normalised:
+          type: number
+      description: "The input level of the selected channel. Only one property is\
+        \ required for setting. If both provided, gain will be prioritized and level\
+        \ would be ignored."
+    inline_response_200_22:
+      type: object
+      properties:
+        phantomPower:
+          type: boolean
+      example:
+        phantomPower: true
+    channelIndex_phantomPower_body:
+      type: object
+      properties:
+        phantomPower:
+          type: boolean
+    inline_response_200_23:
+      type: object
+      properties:
+        padding:
+          type: boolean
+      example:
+        padding: true
+    channelIndex_padding_body:
+      type: object
+      properties:
+        padding:
+          type: boolean
+    inline_response_200_24:
+      type: object
+      properties:
+        lowCutFilter:
+          type: boolean
+      example:
+        lowCutFilter: true
+    channelIndex_lowCutFilter_body:
+      type: object
+      properties:
+        lowCutFilter:
+          type: boolean
+    inline_response_200_25:
+      type: object
+      properties:
+        available:
+          type: boolean
+      example:
+        available: true
+    inline_response_200_26:
+      type: object
+      properties:
+        red:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        green:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        blue:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        luma:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+      example:
+        red: -1.6796687238155953991736168973147869110107421875
+        green: 0.4109824732281612824635885772295296192169189453125
+        blue: -1.4136748077988219307599138119257986545562744140625
+        luma: 0.384853566673272862175281261443160474300384521484375
+    colorCorrection_lift_body:
+      type: object
+      properties:
+        red:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        green:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        blue:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+        luma:
+          maximum: 2
+          minimum: -2
+          type: number
+          default: 0
+    inline_response_200_27:
+      type: object
+      properties:
+        red:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        green:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        blue:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        luma:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+      example:
+        red: -3.359337447631190798347233794629573822021484375
+        green: 0.821964946456322564927177154459059238433837890625
+        blue: -2.827349615597643861519827623851597309112548828125
+        luma: 0.76970713334654572435056252288632094860076904296875
+    colorCorrection_gamma_body:
+      type: object
+      properties:
+        red:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        green:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        blue:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+        luma:
+          maximum: 4
+          minimum: -4
+          type: number
+          default: 0
+    inline_response_200_28:
+      type: object
+      properties:
+        red:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        green:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        blue:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        luma:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+      example:
+        red: 1.28132510473761840330553241074085235595703125
+        green: 9.64392989291264512985435430891811847686767578125
+        blue: 2.34530076880471227696034475229680538177490234375
+        luma: 9.5394142666930914487011250457726418972015380859375
+    colorCorrection_gain_body:
+      type: object
+      properties:
+        red:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        green:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        blue:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+        luma:
+          maximum: 16
+          minimum: 0
+          type: number
+          default: 0
+    inline_response_200_29:
+      type: object
+      properties:
+        red:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        green:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        blue:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        luma:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+      example:
+        red: -6.71867489526238159669446758925914764404296875
+        green: 1.64392989291264512985435430891811847686767578125
+        blue: -5.65469923119528772303965524770319461822509765625
+        luma: 1.5394142666930914487011250457726418972015380859375
+    colorCorrection_offset_body:
+      type: object
+      properties:
+        red:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        green:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        blue:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+        luma:
+          maximum: 8
+          minimum: -8
+          type: number
+          default: 0
+    inline_response_200_30:
+      type: object
+      properties:
+        pivot:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 0.5
+        adjust:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+      example:
+        adjust: 1.20549123661408064123179428861476480960845947265625
+        pivot: 0.080082819046101150206595775671303272247314453125
+    colorCorrection_contrast_body:
+      type: object
+      properties:
+        pivot:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 0.5
+        adjust:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+    inline_response_200_31:
+      type: object
+      properties:
+        hue:
+          maximum: 1
+          minimum: -1
+          type: number
+          default: 0
+        saturation:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+      example:
+        saturation: 1.20549123661408064123179428861476480960845947265625
+        hue: -0.83983436190779769958680844865739345550537109375
+    colorCorrection_color_body:
+      type: object
+      properties:
+        hue:
+          maximum: 1
+          minimum: -1
+          type: number
+          default: 0
+        saturation:
+          maximum: 2
+          minimum: 0
+          type: number
+          default: 1
+    inline_response_200_32:
+      type: object
+      properties:
+        lumaContribution:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 1
+      example:
+        lumaContribution: 0.080082819046101150206595775671303272247314453125
+    colorCorrection_lumaContribution_body:
+      type: object
+      properties:
+        lumaContribution:
+          maximum: 1
+          minimum: 0
+          type: number
+          default: 1
+    inline_response_200_33:
+      type: object
+      properties:
+        continuousApertureAutoExposure:
+          type: boolean
+          description: Is Aperture controlled by auto exposure
+        apertureStop:
+          type: number
+          description: Aperture stop value
+        normalised:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+        apertureNumber:
+          type: number
+          description: Aperture number
+      example:
+        continuousApertureAutoExposure: true
+        normalised: 0.602745618307040320615897144307382404804229736328125
+        apertureStop: 0.80082819046101150206595775671303272247314453125
+        apertureNumber: 1.46581298050294517310021547018550336360931396484375
+    lens_iris_body:
+      type: object
+      properties:
+        apertureStop:
+          type: number
+          description: Aperture stop value
+        normalised:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+        apertureNumber:
+          type: number
+          description: Aperture number
+    inline_response_200_34:
+      type: object
+      properties:
+        focalLength:
+          type: integer
+          description: Focal length in mm
+        normalised:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+      example:
+        normalised: 0.602745618307040320615897144307382404804229736328125
+        focalLength: 0
+    lens_zoom_body:
+      type: object
+      properties:
+        focalLength:
+          type: integer
+          description: Focal length in mm
+        normalised:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+    inline_response_200_35:
+      type: object
+      properties:
+        focus:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+      example:
+        focus: 0.080082819046101150206595775671303272247314453125
+    lens_focus_body:
+      type: object
+      properties:
+        focus:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Normalised value
+    inline_response_200_36:
+      type: object
+      properties:
+        presets:
+          type: array
+          description: List of the presets on the camera
+          items:
+            type: string
+      example:
+        presets:
+        - presets
+        - presets
+    inline_response_200_37:
+      type: object
+      properties:
+        presetAdded:
+          type: string
+          description: Name of the preset uploaded
+      example:
+        presetAdded: presetAdded
+    inline_response_200_38:
+      type: object
+      properties:
+        preset:
+          type: string
+      example:
+        preset: preset
+    presets_active_body:
+      type: object
+      properties:
+        preset:
+          type: string
+    inline_response_200_39:
+      type: object
+      properties:
+        iso:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: Current ISO value
+      example:
+        iso: 171976544
+    video_iso_body:
+      type: object
+      properties:
+        iso:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          description: ISO value to set
+    inline_response_200_40:
+      type: object
+      properties:
+        gain:
+          maximum: 128
+          minimum: -128
+          type: integer
+          description: Current gain value in decibels
+      example:
+        gain: -107
+    video_gain_body:
+      type: object
+      properties:
+        gain:
+          maximum: 128
+          minimum: -128
+          type: integer
+          description: Gain value in decibels to set
+    inline_response_200_41:
+      type: object
+      properties:
+        whiteBalance:
+          maximum: 10000
+          minimum: 2500
+          type: integer
+          description: Current white balance
+      example:
+        whiteBalance: 3100
+    video_whiteBalance_body:
+      type: object
+      properties:
+        whiteBalance:
+          maximum: 10000
+          minimum: 2500
+          type: integer
+          description: White balance to set
+    inline_response_200_42:
+      type: object
+      properties:
+        stop:
+          maximum: 15
+          minimum: 0
+          type: number
+          description: Current filter power (fStop)
+      example:
+        stop: 1.201242285691517253098936635069549083709716796875
+    video_ndFilter_body:
+      type: object
+      properties:
+        stop:
+          maximum: 15
+          minimum: 0
+          type: number
+          description: Filter power (fStop) to set
+    inline_response_200_43:
+      type: object
+      properties:
+        displayMode:
+          type: string
+          enum:
+          - Stop
+          - Number
+          - Fraction
+      example:
+        displayMode: Stop
+    ndFilter_displayMode_body:
+      type: object
+      properties:
+        displayMode:
+          type: string
+          enum:
+          - Stop
+          - Number
+          - Fraction
+    inline_response_200_44:
+      type: object
+      properties:
+        continuousShutterAutoExposure:
+          type: boolean
+          description: Is shutter controlled by auto exposure
+        shutterSpeed:
+          maximum: 50000
+          type: integer
+          description: Shutter speed value in fractions of a second (minimum is sensor
+            frame rate)
+        shutterAngle:
+          maximum: 36000
+          minimum: 100
+          type: integer
+          description: Shutter angle
+      example:
+        shutterAngle: 21738
+        continuousShutterAutoExposure: true
+        shutterSpeed: 4004
+    video_shutter_body:
+      type: object
+      properties:
+        shutterSpeed:
+          maximum: 50000
+          type: integer
+          description: Shutter speed value in fractions of a second (minimum is sensor
+            frame rate)
+        shutterAngle:
+          maximum: 36000
+          minimum: 100
+          type: integer
+          description: Shutter angle
+    inline_response_200_45:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/videoautoExposure_mode'
+      example:
+        mode:
+          mode: "Off"
+          type: ""
+    videoautoExposure_mode:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+          - "Off"
+          - Continuous
+          - OneShot
+        type:
+          type: string
+          enum:
+          - ""
+          - Iris
+          - Shutter
+          - "Iris,Shutter"
+          - "Shutter,Iris"
+      description: Auto exposure mode
+      example:
+        mode: "Off"
+        type: ""
+    video_autoExposure_body:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/videoautoExposure_mode'
+    Workingset_workingset:
+      type: object
+      properties:
+        index:
+          type: integer
+          description: Index of this media in the working set
+          example: 0
+        activeDisk:
+          type: boolean
+          description: Is this current item the active disk
+          example: false
+        volume:
+          type: string
+          description: Volume name
+          example: My disk
+        deviceName:
+          type: string
+          description: Internal device name of this media device
+          example: sd1
+        remainingRecordTime:
+          type: integer
+          description: Remaining record time on media device in seconds
+          example: 5124087
+        totalSpace:
+          type: integer
+          description: Total space on media device in bytes
+          example: 9817071702016
+        remainingSpace:
+          type: integer
+          description: Remaining space on media device in bytes
+          example: 7817071702016
+        clipCount:
+          type: integer
+          description: Number of clips currently on the device
+          example: 12
+      example:
+        volume: My disk
+        remainingRecordTime: 5124087
+        clipCount: 12
+        index: 0
+        remainingSpace: 7817071702016
+        totalSpace: 9817071702016
+        deviceName: sd1
+        activeDisk: false
+    SupportedFormats_supportedFormats:
+      type: object
+      properties:
+        codecs:
+          type: array
+          items:
+            type: string
+            example: BRaw:Q0
+        frameRates:
+          type: array
+          items:
+            type: string
+            example: "29.97"
+            enum:
+            - "23.98"
+            - "24.00"
+            - "24"
+            - "25.00"
+            - "25"
+            - "29.97"
+            - "30.00"
+            - "30"
+            - "47.95"
+            - "48.00"
+            - "48"
+            - "50.00"
+            - "50"
+            - "59.94"
+            - "60.00"
+            - "60"
+            - "119.88"
+            - "120.00"
+            - "120"
+        maxOffSpeedFrameRate:
+          type: number
+          example: 60
+        minOffSpeedFrameRate:
+          type: number
+          example: 5
+        recordResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+        sensorResolution:
+          $ref: '#/components/schemas/systemformat_recordResolution'
+      example:
+        recordResolution:
+          width: 3840
+          height: 2160
+        frameRates:
+        - "29.97"
+        - "29.97"
+        codecs:
+        - BRaw:Q0
+        - BRaw:Q0
+        sensorResolution: null
+        minOffSpeedFrameRate: 5
+        maxOffSpeedFrameRate: 60
+    Timeline_clips:
+      type: object
+      properties:
+        clipUniqueId:
+          type: integer
+          description: Unique ID used to identify this clip
+          example: 1
+        frameCount:
+          type: integer
+          description: Number of frames in this clip on the timeline
+          example: 90000
+      example:
+        frameCount: 90000
+        clipUniqueId: 1
+    description_gainRange:
+      type: object
+      properties:
+        Min:
+          type: number
+          description: The minimum gain value in dB
+        Max:
+          type: number
+          description: The maximum gain value in dB
+      example:
+        Min: 0.80082819046101150206595775671303272247314453125
+        Max: 6.02745618307040320615897144307382404804229736328125
+    description_capabilities_Padding:
+      type: object
+      properties:
+        available:
+          type: boolean
+          description: Input supports setting of padding
+        forced:
+          type: boolean
+          description: Padding is forced to be set for the input
+        value:
+          type: number
+          description: Value of the padding in dB
+      example:
+        forced: true
+        available: true
+        value: 1.46581298050294517310021547018550336360931396484375
+    description_capabilities:
+      type: object
+      properties:
+        PhantomPower:
+          type: boolean
+          description: Input supports setting of phantom power
+        LowCutFilter:
+          type: boolean
+          description: Input supports setting of low cut filter
+        Padding:
+          $ref: '#/components/schemas/description_capabilities_Padding'
+      example:
+        PhantomPower: true
+        Padding:
+          forced: true
+          available: true
+          value: 1.46581298050294517310021547018550336360931396484375
+        LowCutFilter: true
+    supportedInputs_supportedInputs:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/channelIndex_input_body'
+        available:
+          type: boolean
+          description: Is the input available to be switched into from the current
+            input for the selected channel
+      example:
+        schema:
+          input: None
+        available: true

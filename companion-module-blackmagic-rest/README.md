@@ -63,7 +63,7 @@ REM Generation of client stub javascript
 
 npm install
 
-npm start
+import in companion
 
 
 ============== Annex ================
@@ -127,29 +127,17 @@ REM set main and scripts in package.json
   }
 }
 
-REM version 0.1.0
-
-REM generate json without dependencies from OpenApi specification
-
-openapi read ../../externals/BlackmagicRestOpenApi/api/0.1.0/BlackmagicCameraControlRestAPI.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json
-
-
-REM generate typescript types from JSON version of OpenApi specification
-
-npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/0.1.0/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
-
-
 
 REM version 1.0.0
 
 
 REM generate json without dependencies from OpenApi specification
 
-openapi read ../../externals/BlackmagicRestOpenApi/api/1.0.0/CameraControls.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/1.0.0/BlackmagicCameraControlRestAPI.json
+openapi read ../externals/BlackmagicRestOpenApi/api/1.0.0/CameraControls.yaml --format=json --dereference > ./src/types/BlackmagicCameraControlRestAPI.json
 
 REM generate typescript types from JSON version of OpenApi specification
 
-npx openapicmd typegen ../../externals/BlackmagicRestOpenApi/dist/1.0.0/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
+npx openapicmd typegen ./src/types/BlackmagicCameraControlRestAPI.json > ./src/types/BlackmagicCameraControlRestAPI.d.ts
 
 npm install 
 REM or npm run build

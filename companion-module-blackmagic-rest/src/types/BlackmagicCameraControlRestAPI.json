@@ -1,0 +1,4663 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API for Blackmagic camera",
+    "description": "Blackmagic camera REST API supporting TransportControl, LensControl"
+  },
+  "servers": [
+    {
+      "description": "Subpath declaring the interface version",
+      "url": "/control/api/v1"
+    },
+    {
+      "description": "Local Mocking",
+      "url": "http://localhost:9000/control/api/v1"
+    },
+    {
+      "description": "Camera1 to be declare in DNS or Hosts file",
+      "url": "https://camera1/control/api/v1"
+    },
+    {
+      "description": "Camera2 to be declare in DNS or Hosts file",
+      "url": "https://camera2/control/api/v1"
+    },
+    {
+      "description": "Camera3 to be declare in DNS or Hosts file",
+      "url": "https://camera3/control/api/v1"
+    },
+    {
+      "description": "Camera4 to be declare in DNS or Hosts file",
+      "url": "https://camera4/control/api/v1"
+    },
+    {
+      "description": "Camera5 to be declare in DNS or Hosts file",
+      "url": "https://camera5/control/api/v1"
+    },
+    {
+      "description": "Camera6 to be declare in DNS or Hosts file",
+      "url": "https://camera6/control/api/v1"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "eventsList": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "List of events that can be subscribed to using the websocket API"
+            }
+          }
+        }
+      },
+      "Workingset": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "The fixed size of this device's working set"
+          },
+          "workingset": {
+            "type": "array",
+            "required": [
+              "index"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer",
+                  "description": "Index of this media in the working set",
+                  "example": 0
+                },
+                "activeDisk": {
+                  "type": "boolean",
+                  "description": "Is this current item the active disk",
+                  "example": false
+                },
+                "volume": {
+                  "type": "string",
+                  "description": "Volume name",
+                  "example": "My disk"
+                },
+                "deviceName": {
+                  "type": "string",
+                  "description": "Internal device name of this media device",
+                  "example": "sd1"
+                },
+                "remainingRecordTime": {
+                  "type": "integer",
+                  "description": "Remaining record time on media device in seconds",
+                  "example": 5124087
+                },
+                "totalSpace": {
+                  "type": "integer",
+                  "description": "Total space on media device in bytes",
+                  "example": 9817071702016
+                },
+                "remainingSpace": {
+                  "type": "integer",
+                  "description": "Remaining space on media device in bytes",
+                  "example": 7817071702016
+                },
+                "clipCount": {
+                  "type": "integer",
+                  "description": "Number of clips currently on the device",
+                  "example": 12
+                }
+              }
+            }
+          }
+        }
+      },
+      "ActiveMedia": {
+        "type": "object",
+        "properties": {
+          "workingsetIndex": {
+            "type": "integer",
+            "description": "Working set index of the active media device",
+            "example": 0
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "Internal device name of this media device",
+            "example": "sd1"
+          }
+        }
+      },
+      "DoFormatSupportedFilesystems": {
+        "type": "array",
+        "example": [
+          "ExFat",
+          "HFS"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "MediaDeviceInformation": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Scanning",
+              "Mounted",
+              "Uninitialised",
+              "Formatting",
+              "RaidComponent"
+            ],
+            "description": "The current state of the media device."
+          }
+        }
+      },
+      "FormatKey": {
+        "type": "string",
+        "description": "The key used to format this device, it must be fetched with the GET request and then provided back with a PUT request"
+      },
+      "SystemResponse": {
+        "type": "object",
+        "description": "The properties will be populated only with the values that are supported/implemented by the device in use.",
+        "properties": {
+          "codecFormat": {
+            "type": "object",
+            "properties": {
+              "codec": {
+                "type": "string",
+                "description": "Currently selected codec",
+                "example": "ProRes:HQ"
+              },
+              "container": {
+                "type": "string",
+                "description": "Multimedia container format",
+                "example": "MOV"
+              }
+            }
+          },
+          "videoFormat": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Video format serialised as a string",
+                "example": "1920x1080p29.97"
+              },
+              "frameRate": {
+                "description": "Frame rate",
+                "example": "29.97",
+                "type": "string",
+                "enum": [
+                  "23.98",
+                  "24.00",
+                  "24",
+                  "25.00",
+                  "25",
+                  "29.97",
+                  "30.00",
+                  "30",
+                  "47.95",
+                  "48.00",
+                  "48",
+                  "50.00",
+                  "50",
+                  "59.94",
+                  "60.00",
+                  "60",
+                  "119.88",
+                  "120.00",
+                  "120"
+                ]
+              },
+              "height": {
+                "type": "number",
+                "description": "Height dimension of video format",
+                "example": 1920
+              },
+              "width": {
+                "type": "number",
+                "description": "Width dimension of video format",
+                "example": 1080
+              },
+              "interlaced": {
+                "type": "boolean",
+                "description": "Is the display format interlaced?",
+                "example": false
+              }
+            }
+          }
+        }
+      },
+      "SupportedCodecFormats": {
+        "type": "object",
+        "properties": {
+          "codecs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "codec": {
+                  "type": "string",
+                  "description": "Currently selected codec",
+                  "example": "ProRes:HQ"
+                },
+                "container": {
+                  "type": "string",
+                  "description": "Multimedia container format",
+                  "example": "MOV"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CodecFormat": {
+        "type": "object",
+        "properties": {
+          "codec": {
+            "type": "string",
+            "description": "Currently selected codec",
+            "example": "ProRes:HQ"
+          },
+          "container": {
+            "type": "string",
+            "description": "Multimedia container format",
+            "example": "MOV"
+          }
+        }
+      },
+      "SupportedVideoFormats": {
+        "type": "object",
+        "properties": {
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "frameRate": {
+                  "description": "Frame rate",
+                  "example": "30",
+                  "type": "string",
+                  "enum": [
+                    "23.98",
+                    "24.00",
+                    "24",
+                    "25.00",
+                    "25",
+                    "29.97",
+                    "30.00",
+                    "30",
+                    "47.95",
+                    "48.00",
+                    "48",
+                    "50.00",
+                    "50",
+                    "59.94",
+                    "60.00",
+                    "60",
+                    "119.88",
+                    "120.00",
+                    "120"
+                  ]
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Height dimension of video format",
+                  "example": 1920
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Width dimension of video format",
+                  "example": 1080
+                },
+                "interlaced": {
+                  "type": "boolean",
+                  "description": "Is the display format interlaced?",
+                  "example": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "FrameRate": {
+        "type": "string",
+        "example": "29.97",
+        "enum": [
+          "23.98",
+          "24.00",
+          "24",
+          "25.00",
+          "25",
+          "29.97",
+          "30.00",
+          "30",
+          "47.95",
+          "48.00",
+          "48",
+          "50.00",
+          "50",
+          "59.94",
+          "60.00",
+          "60",
+          "119.88",
+          "120.00",
+          "120"
+        ]
+      },
+      "VideoFormat": {
+        "type": "object",
+        "properties": {
+          "frameRate": {
+            "description": "Frame rate",
+            "example": "30",
+            "type": "string",
+            "enum": [
+              "23.98",
+              "24.00",
+              "24",
+              "25.00",
+              "25",
+              "29.97",
+              "30.00",
+              "30",
+              "47.95",
+              "48.00",
+              "48",
+              "50.00",
+              "50",
+              "59.94",
+              "60.00",
+              "60",
+              "119.88",
+              "120.00",
+              "120"
+            ]
+          },
+          "height": {
+            "type": "number",
+            "description": "Height dimension of video format",
+            "example": 1920
+          },
+          "width": {
+            "type": "number",
+            "description": "Width dimension of video format",
+            "example": 1080
+          },
+          "interlaced": {
+            "type": "boolean",
+            "description": "Is the display format interlaced?",
+            "example": false
+          }
+        }
+      },
+      "GetVideoFormat": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Video format serialised as a string",
+            "example": "1920x1080p29.97"
+          },
+          "frameRate": {
+            "description": "Frame rate",
+            "example": "29.97",
+            "type": "string",
+            "enum": [
+              "23.98",
+              "24.00",
+              "24",
+              "25.00",
+              "25",
+              "29.97",
+              "30.00",
+              "30",
+              "47.95",
+              "48.00",
+              "48",
+              "50.00",
+              "50",
+              "59.94",
+              "60.00",
+              "60",
+              "119.88",
+              "120.00",
+              "120"
+            ]
+          },
+          "height": {
+            "type": "number",
+            "description": "Height dimension of video format",
+            "example": 1920
+          },
+          "width": {
+            "type": "number",
+            "description": "Width dimension of video format",
+            "example": 1080
+          },
+          "interlaced": {
+            "type": "boolean",
+            "description": "Is the display format interlaced?",
+            "example": false
+          }
+        }
+      },
+      "Format": {
+        "type": "object",
+        "properties": {
+          "codec": {
+            "type": "string",
+            "description": "Currently selected codec",
+            "example": "BRaw:8_1"
+          },
+          "frameRate": {
+            "description": "Frame rate",
+            "example": "24",
+            "type": "string",
+            "enum": [
+              "23.98",
+              "24.00",
+              "24",
+              "25.00",
+              "25",
+              "29.97",
+              "30.00",
+              "30",
+              "47.95",
+              "48.00",
+              "48",
+              "50.00",
+              "50",
+              "59.94",
+              "60.00",
+              "60",
+              "119.88",
+              "120.00",
+              "120"
+            ]
+          },
+          "maxOffSpeedFrameRate": {
+            "type": "number",
+            "example": 60
+          },
+          "minOffSpeedFrameRate": {
+            "type": "number",
+            "example": 5
+          },
+          "offSpeedEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "offSpeedFrameRate": {
+            "type": "number",
+            "example": 60
+          },
+          "recordResolution": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number",
+                "description": "Height of the resolution",
+                "example": 2160
+              },
+              "width": {
+                "type": "number",
+                "description": "Width of the resolution",
+                "example": 3840
+              }
+            }
+          },
+          "sensorResolution": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number",
+                "description": "Height of the resolution",
+                "example": 2160
+              },
+              "width": {
+                "type": "number",
+                "description": "Width of the resolution",
+                "example": 3840
+              }
+            }
+          }
+        }
+      },
+      "Resolution": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "number",
+            "description": "Height of the resolution",
+            "example": 2160
+          },
+          "width": {
+            "type": "number",
+            "description": "Width of the resolution",
+            "example": 3840
+          }
+        }
+      },
+      "SupportedFormats": {
+        "type": "object",
+        "properties": {
+          "supportedFormats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "codecs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "example": "BRaw:Q0"
+                  }
+                },
+                "frameRates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "example": "29.97",
+                    "enum": [
+                      "23.98",
+                      "24.00",
+                      "24",
+                      "25.00",
+                      "25",
+                      "29.97",
+                      "30.00",
+                      "30",
+                      "47.95",
+                      "48.00",
+                      "48",
+                      "50.00",
+                      "50",
+                      "59.94",
+                      "60.00",
+                      "60",
+                      "119.88",
+                      "120.00",
+                      "120"
+                    ]
+                  }
+                },
+                "maxOffSpeedFrameRate": {
+                  "type": "number",
+                  "example": 60
+                },
+                "minOffSpeedFrameRate": {
+                  "type": "number",
+                  "example": 5
+                },
+                "recordResolution": {
+                  "type": "object",
+                  "properties": {
+                    "height": {
+                      "type": "number",
+                      "description": "Height of the resolution",
+                      "example": 2160
+                    },
+                    "width": {
+                      "type": "number",
+                      "description": "Width of the resolution",
+                      "example": 3840
+                    }
+                  }
+                },
+                "sensorResolution": {
+                  "type": "object",
+                  "properties": {
+                    "height": {
+                      "type": "number",
+                      "description": "Height of the resolution",
+                      "example": 2160
+                    },
+                    "width": {
+                      "type": "number",
+                      "description": "Width of the resolution",
+                      "example": 3840
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "SupportedFormat": {
+        "type": "object",
+        "properties": {
+          "codecs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "BRaw:Q0"
+            }
+          },
+          "frameRates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "29.97",
+              "enum": [
+                "23.98",
+                "24.00",
+                "24",
+                "25.00",
+                "25",
+                "29.97",
+                "30.00",
+                "30",
+                "47.95",
+                "48.00",
+                "48",
+                "50.00",
+                "50",
+                "59.94",
+                "60.00",
+                "60",
+                "119.88",
+                "120.00",
+                "120"
+              ]
+            }
+          },
+          "maxOffSpeedFrameRate": {
+            "type": "number",
+            "example": 60
+          },
+          "minOffSpeedFrameRate": {
+            "type": "number",
+            "example": 5
+          },
+          "recordResolution": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number",
+                "description": "Height of the resolution",
+                "example": 2160
+              },
+              "width": {
+                "type": "number",
+                "description": "Width of the resolution",
+                "example": 3840
+              }
+            }
+          },
+          "sensorResolution": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number",
+                "description": "Height of the resolution",
+                "example": 2160
+              },
+              "width": {
+                "type": "number",
+                "description": "Width of the resolution",
+                "example": 3840
+              }
+            }
+          }
+        }
+      },
+      "Timeline": {
+        "type": "object",
+        "properties": {
+          "clips": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "clipUniqueId": {
+                  "type": "integer",
+                  "description": "Unique ID used to identify this clip",
+                  "example": 1
+                },
+                "frameCount": {
+                  "type": "integer",
+                  "description": "Number of frames in this clip on the timeline",
+                  "example": 90000
+                }
+              }
+            }
+          }
+        }
+      },
+      "AddClip": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "clips": {
+                "type": "integer",
+                "description": "Unique ID used to identify this clip",
+                "example": 1
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "clips": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "description": "Unique ID used to identify this clip"
+                },
+                "example": [
+                  1,
+                  2,
+                  3
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "TransportResponse": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Transport mode.",
+            "enum": [
+              "InputPreview",
+              "InputRecord",
+              "Output"
+            ]
+          }
+        }
+      },
+      "Stopped": {
+        "type": "object",
+        "description": "True when transport mode is InputPreview or when in Output mode and speed is 0",
+        "properties": {
+          "stopped": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Playback": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Play",
+              "Jog",
+              "Shuttle",
+              "Var"
+            ]
+          },
+          "loop": {
+            "type": "boolean",
+            "description": "When true playback loops from the end of the timeline to the beginning of the timeline"
+          },
+          "singleClip": {
+            "type": "boolean",
+            "description": "When true playback loops from the end of the current clip to the beginning of the current clip"
+          },
+          "speed": {
+            "type": "number",
+            "description": "Playback Speed, 1.0 for normal forward playback"
+          },
+          "position": {
+            "type": "integer",
+            "description": "Playback position on the timeline in units of video frames"
+          }
+        }
+      },
+      "GetRecord": {
+        "type": "object",
+        "properties": {
+          "recording": {
+            "type": "boolean",
+            "description": "Is transport in Input Record mode"
+          }
+        }
+      },
+      "Record": {
+        "type": "object",
+        "properties": {
+          "recording": {
+            "type": "boolean",
+            "description": "Is transport in Input Record mode"
+          },
+          "clipName": {
+            "type": "string",
+            "description": "Used to set the requested clipName to record to, when specifying \"recording\" attribute to True"
+          }
+        }
+      },
+      "Timecode": {
+        "type": "object",
+        "properties": {
+          "timecode": {
+            "type": "number",
+            "description": "The time of day timecode in units of binary-coded decimal (BCD)."
+          },
+          "clip": {
+            "type": "number",
+            "description": "The position of the clip timecode in units of binary-coded decimal (BCD)."
+          }
+        }
+      },
+      "TimecodeSource": {
+        "type": "object",
+        "properties": {
+          "timecode": {
+            "type": "string",
+            "enum": [
+              "Timecode",
+              "Clip"
+            ]
+          }
+        }
+      },
+      "input": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Camera - Left",
+              "Camera - Right",
+              "Camera - Mono",
+              "XLR1 - Mic",
+              "XLR1 - Line",
+              "XLR2 - Mic",
+              "XLR2 - Line",
+              "3.5mm Left - Line",
+              "3.5mm Left - Mic",
+              "3.5mm Right - Line",
+              "3.5mm Right - Mic",
+              "3.5mm Mono - Line",
+              "3.5mm Mono - Mic"
+            ]
+          }
+        }
+      },
+      "description": {
+        "type": "object",
+        "properties": {
+          "gainRange": {
+            "type": "object",
+            "properties": {
+              "Min": {
+                "description": "The minimum gain value in dB",
+                "type": "number"
+              },
+              "Max": {
+                "description": "The maximum gain value in dB",
+                "type": "number"
+              }
+            }
+          },
+          "capabilities": {
+            "type": "object",
+            "properties": {
+              "PhantomPower": {
+                "description": "Input supports setting of phantom power",
+                "type": "boolean"
+              },
+              "LowCutFilter": {
+                "description": "Input supports setting of low cut filter",
+                "type": "boolean"
+              },
+              "Padding": {
+                "type": "object",
+                "properties": {
+                  "available": {
+                    "description": "Input supports setting of padding",
+                    "type": "boolean"
+                  },
+                  "forced": {
+                    "description": "Padding is forced to be set for the input",
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "description": "Value of the padding in dB",
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "supportedInputs": {
+        "type": "object",
+        "properties": {
+          "supportedInputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "input": {
+                      "type": "string",
+                      "enum": [
+                        "None",
+                        "Camera - Left",
+                        "Camera - Right",
+                        "Camera - Mono",
+                        "XLR1 - Mic",
+                        "XLR1 - Line",
+                        "XLR2 - Mic",
+                        "XLR2 - Line",
+                        "3.5mm Left - Line",
+                        "3.5mm Left - Mic",
+                        "3.5mm Right - Line",
+                        "3.5mm Right - Mic",
+                        "3.5mm Mono - Line",
+                        "3.5mm Mono - Mic"
+                      ]
+                    }
+                  }
+                },
+                "available": {
+                  "description": "Is the input available to be switched into from the current input for the selected channel",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "level": {
+        "description": "The input level of the selected channel. Only one property is required for setting. If both provided, gain will be prioritized and level would be ignored.",
+        "type": "object",
+        "properties": {
+          "gain": {
+            "type": "number"
+          },
+          "normalised": {
+            "type": "number"
+          }
+        }
+      },
+      "phantomPower": {
+        "type": "object",
+        "properties": {
+          "phantomPower": {
+            "type": "boolean"
+          }
+        }
+      },
+      "padding": {
+        "type": "object",
+        "properties": {
+          "padding": {
+            "type": "boolean"
+          }
+        }
+      },
+      "lowCutFilter": {
+        "type": "object",
+        "properties": {
+          "lowCutFilter": {
+            "type": "boolean"
+          }
+        }
+      },
+      "available": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Lift": {
+        "type": "object",
+        "properties": {
+          "red": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": -2,
+            "default": 0
+          },
+          "green": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": -2,
+            "default": 0
+          },
+          "blue": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": -2,
+            "default": 0
+          },
+          "luma": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": -2,
+            "default": 0
+          }
+        }
+      },
+      "Gamma": {
+        "type": "object",
+        "properties": {
+          "red": {
+            "type": "number",
+            "maximum": 4,
+            "minimum": -4,
+            "default": 0
+          },
+          "green": {
+            "type": "number",
+            "maximum": 4,
+            "minimum": -4,
+            "default": 0
+          },
+          "blue": {
+            "type": "number",
+            "maximum": 4,
+            "minimum": -4,
+            "default": 0
+          },
+          "luma": {
+            "type": "number",
+            "maximum": 4,
+            "minimum": -4,
+            "default": 0
+          }
+        }
+      },
+      "Gain": {
+        "type": "object",
+        "properties": {
+          "red": {
+            "type": "number",
+            "maximum": 16,
+            "minimum": 0,
+            "default": 0
+          },
+          "green": {
+            "type": "number",
+            "maximum": 16,
+            "minimum": 0,
+            "default": 0
+          },
+          "blue": {
+            "type": "number",
+            "maximum": 16,
+            "minimum": 0,
+            "default": 0
+          },
+          "luma": {
+            "type": "number",
+            "maximum": 16,
+            "minimum": 0,
+            "default": 0
+          }
+        }
+      },
+      "Offset": {
+        "type": "object",
+        "properties": {
+          "red": {
+            "type": "number",
+            "maximum": 8,
+            "minimum": -8,
+            "default": 0
+          },
+          "green": {
+            "type": "number",
+            "maximum": 8,
+            "minimum": -8,
+            "default": 0
+          },
+          "blue": {
+            "type": "number",
+            "maximum": 8,
+            "minimum": -8,
+            "default": 0
+          },
+          "luma": {
+            "type": "number",
+            "maximum": 8,
+            "minimum": -8,
+            "default": 0
+          }
+        }
+      },
+      "Contrast": {
+        "type": "object",
+        "properties": {
+          "pivot": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "default": 0.5
+          },
+          "adjust": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": 0,
+            "default": 1
+          }
+        }
+      },
+      "Color": {
+        "type": "object",
+        "properties": {
+          "hue": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": -1,
+            "default": 0
+          },
+          "saturation": {
+            "type": "number",
+            "maximum": 2,
+            "minimum": 0,
+            "default": 1
+          }
+        }
+      },
+      "LumaContribution": {
+        "type": "object",
+        "properties": {
+          "lumaContribution": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "default": 1
+          }
+        }
+      },
+      "apertureStop": {
+        "type": "number",
+        "description": "Aperture stop value"
+      },
+      "normalised": {
+        "type": "number",
+        "description": "Normalised value",
+        "maximum": 1,
+        "minimum": 0
+      },
+      "apertureNumber": {
+        "type": "number",
+        "description": "Aperture number"
+      },
+      "focalLength": {
+        "type": "integer",
+        "description": "Focal length in mm"
+      },
+      "presetList": {
+        "type": "object",
+        "properties": {
+          "presets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of the presets on the camera"
+          }
+        }
+      },
+      "postPresetResponse": {
+        "type": "object",
+        "properties": {
+          "presetAdded": {
+            "type": "string",
+            "description": "Name of the preset uploaded"
+          }
+        }
+      },
+      "activePreset": {
+        "type": "object",
+        "properties": {
+          "preset": {
+            "type": "string"
+          }
+        }
+      },
+      "shutterSpeed": {
+        "type": "integer",
+        "description": "Shutter speed value in fractions of a second (minimum is sensor frame rate)",
+        "maximum": 50000
+      },
+      "shutterAngle": {
+        "type": "integer",
+        "description": "Shutter angle",
+        "maximum": 36000,
+        "minimum": 100
+      },
+      "autoExposureMode": {
+        "type": "object",
+        "description": "Auto exposure mode",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "Off",
+              "Continuous",
+              "OneShot"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "",
+              "Iris",
+              "Shutter",
+              "Iris,Shutter",
+              "Shutter,Iris"
+            ]
+          }
+        }
+      },
+      "ndFilterDisplayMode": {
+        "type": "string",
+        "enum": [
+          "Stop",
+          "Number",
+          "Fraction"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/event/list": {
+      "get": {
+        "operationId": "getEventList",
+        "summary": "Get the list of events that can be subscribed to using the websocket API.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "List of events that can be subscribed to using the websocket API"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/workingset": {
+      "get": {
+        "operationId": "getMediaWorkingset",
+        "summary": "Get the list of media devices currently in the working set.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "size": {
+                      "type": "integer",
+                      "description": "The fixed size of this device's working set"
+                    },
+                    "workingset": {
+                      "type": "array",
+                      "required": [
+                        "index"
+                      ],
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "description": "Index of this media in the working set",
+                            "example": 0
+                          },
+                          "activeDisk": {
+                            "type": "boolean",
+                            "description": "Is this current item the active disk",
+                            "example": false
+                          },
+                          "volume": {
+                            "type": "string",
+                            "description": "Volume name",
+                            "example": "My disk"
+                          },
+                          "deviceName": {
+                            "type": "string",
+                            "description": "Internal device name of this media device",
+                            "example": "sd1"
+                          },
+                          "remainingRecordTime": {
+                            "type": "integer",
+                            "description": "Remaining record time on media device in seconds",
+                            "example": 5124087
+                          },
+                          "totalSpace": {
+                            "type": "integer",
+                            "description": "Total space on media device in bytes",
+                            "example": 9817071702016
+                          },
+                          "remainingSpace": {
+                            "type": "integer",
+                            "description": "Remaining space on media device in bytes",
+                            "example": 7817071702016
+                          },
+                          "clipCount": {
+                            "type": "integer",
+                            "description": "Number of clips currently on the device",
+                            "example": 12
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/active": {
+      "get": {
+        "operationId": "getMediaActive",
+        "summary": "Get the currently active media device.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workingsetIndex": {
+                      "type": "integer",
+                      "description": "Working set index of the active media device",
+                      "example": 0
+                    },
+                    "deviceName": {
+                      "type": "string",
+                      "description": "Internal device name of this media device",
+                      "example": "sd1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putMediaActive",
+        "summary": "Set the currently active media device.",
+        "requestBody": {
+          "description": "Set the specified index to be active",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workingsetIndex": {
+                    "type": "integer",
+                    "description": "Working set index of the media to become active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/media/devices/doformatSupportedFilesystems": {
+      "get": {
+        "operationId": "getMediaDevicesDoformatSupportedFilesystems",
+        "summary": "Get the list of filesystems available to format the device.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    "ExFat",
+                    "HFS"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/devices/{deviceName}": {
+      "get": {
+        "operationId": "getMediaDevicesDeviceName",
+        "summary": "Get information about the selected device.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Device name of the media device, as returned by deviceName member of Workingset or ActiveMedia"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "None",
+                        "Scanning",
+                        "Mounted",
+                        "Uninitialised",
+                        "Formatting",
+                        "RaidComponent"
+                      ],
+                      "description": "The current state of the media device."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/devices/{deviceName}/doformat": {
+      "get": {
+        "operationId": "getMediaDevicesDeviceNameDoformat",
+        "summary": "Get a format key, used to format the device with a put request.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Device name of the media device, as returned by deviceName member of Workingset or ActiveMedia"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "deviceName": {
+                      "type": "string",
+                      "description": "Internal device name of this media device"
+                    },
+                    "key": {
+                      "type": "string",
+                      "description": "The key used to format this device, it must be fetched with the GET request and then provided back with a PUT request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putMediaDevicesDeviceNameDoformat",
+        "summary": "Perform a format of the media device.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Device name of the media device, as returned by deviceName member of Workingset or ActiveMedia"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "The key used to format this device, it must be fetched with the GET request and then provided back with a PUT request"
+                  },
+                  "filesystem": {
+                    "type": "string",
+                    "description": "Filesystem to format to (supportedFilesystems returns list of supported fileSystems)"
+                  },
+                  "volume": {
+                    "type": "string",
+                    "description": "Volume name to set for the disk after format"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/system": {
+      "get": {
+        "operationId": "getSystem",
+        "summary": "Get device system information.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "The properties will be populated only with the values that are supported/implemented by the device in use.",
+                  "properties": {
+                    "codecFormat": {
+                      "type": "object",
+                      "properties": {
+                        "codec": {
+                          "type": "string",
+                          "description": "Currently selected codec",
+                          "example": "ProRes:HQ"
+                        },
+                        "container": {
+                          "type": "string",
+                          "description": "Multimedia container format",
+                          "example": "MOV"
+                        }
+                      }
+                    },
+                    "videoFormat": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Video format serialised as a string",
+                          "example": "1920x1080p29.97"
+                        },
+                        "frameRate": {
+                          "description": "Frame rate",
+                          "example": "29.97",
+                          "type": "string",
+                          "enum": [
+                            "23.98",
+                            "24.00",
+                            "24",
+                            "25.00",
+                            "25",
+                            "29.97",
+                            "30.00",
+                            "30",
+                            "47.95",
+                            "48.00",
+                            "48",
+                            "50.00",
+                            "50",
+                            "59.94",
+                            "60.00",
+                            "60",
+                            "119.88",
+                            "120.00",
+                            "120"
+                          ]
+                        },
+                        "height": {
+                          "type": "number",
+                          "description": "Height dimension of video format",
+                          "example": 1920
+                        },
+                        "width": {
+                          "type": "number",
+                          "description": "Width dimension of video format",
+                          "example": 1080
+                        },
+                        "interlaced": {
+                          "type": "boolean",
+                          "description": "Is the display format interlaced?",
+                          "example": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/supportedCodecFormats": {
+      "get": {
+        "operationId": "getSystemSupportedCodecFormats",
+        "summary": "Get the list of supported codecs.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "codecs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "codec": {
+                            "type": "string",
+                            "description": "Currently selected codec",
+                            "example": "ProRes:HQ"
+                          },
+                          "container": {
+                            "type": "string",
+                            "description": "Multimedia container format",
+                            "example": "MOV"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/codecFormat": {
+      "get": {
+        "operationId": "getSystemCodecFormat",
+        "summary": "Get the currently selected codec.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "codec": {
+                      "type": "string",
+                      "description": "Currently selected codec",
+                      "example": "ProRes:HQ"
+                    },
+                    "container": {
+                      "type": "string",
+                      "description": "Multimedia container format",
+                      "example": "MOV"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      },
+      "put": {
+        "operationId": "putSystemCodecFormat",
+        "summary": "Set the codec.",
+        "requestBody": {
+          "description": "Update the system codec",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "codec": {
+                    "type": "string",
+                    "description": "Currently selected codec",
+                    "example": "ProRes:HQ"
+                  },
+                  "container": {
+                    "type": "string",
+                    "description": "Multimedia container format",
+                    "example": "MOV"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/videoFormat": {
+      "get": {
+        "operationId": "getSystemVideoFormat",
+        "summary": "Get the currently selected video format.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Video format serialised as a string",
+                      "example": "1920x1080p29.97"
+                    },
+                    "frameRate": {
+                      "description": "Frame rate",
+                      "example": "29.97",
+                      "type": "string",
+                      "enum": [
+                        "23.98",
+                        "24.00",
+                        "24",
+                        "25.00",
+                        "25",
+                        "29.97",
+                        "30.00",
+                        "30",
+                        "47.95",
+                        "48.00",
+                        "48",
+                        "50.00",
+                        "50",
+                        "59.94",
+                        "60.00",
+                        "60",
+                        "119.88",
+                        "120.00",
+                        "120"
+                      ]
+                    },
+                    "height": {
+                      "type": "number",
+                      "description": "Height dimension of video format",
+                      "example": 1920
+                    },
+                    "width": {
+                      "type": "number",
+                      "description": "Width dimension of video format",
+                      "example": 1080
+                    },
+                    "interlaced": {
+                      "type": "boolean",
+                      "description": "Is the display format interlaced?",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      },
+      "put": {
+        "operationId": "putSystemVideoFormat",
+        "summary": "Set the video format.",
+        "requestBody": {
+          "description": "Update the system video format",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "frameRate": {
+                    "description": "Frame rate",
+                    "example": "30",
+                    "type": "string",
+                    "enum": [
+                      "23.98",
+                      "24.00",
+                      "24",
+                      "25.00",
+                      "25",
+                      "29.97",
+                      "30.00",
+                      "30",
+                      "47.95",
+                      "48.00",
+                      "48",
+                      "50.00",
+                      "50",
+                      "59.94",
+                      "60.00",
+                      "60",
+                      "119.88",
+                      "120.00",
+                      "120"
+                    ]
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "Height dimension of video format",
+                    "example": 1920
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "Width dimension of video format",
+                    "example": 1080
+                  },
+                  "interlaced": {
+                    "type": "boolean",
+                    "description": "Is the display format interlaced?",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/supportedVideoFormats": {
+      "get": {
+        "operationId": "getSystemSupportedVideoFormats",
+        "summary": "Get the list of supported video formats for the current system state.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "frameRate": {
+                            "description": "Frame rate",
+                            "example": "30",
+                            "type": "string",
+                            "enum": [
+                              "23.98",
+                              "24.00",
+                              "24",
+                              "25.00",
+                              "25",
+                              "29.97",
+                              "30.00",
+                              "30",
+                              "47.95",
+                              "48.00",
+                              "48",
+                              "50.00",
+                              "50",
+                              "59.94",
+                              "60.00",
+                              "60",
+                              "119.88",
+                              "120.00",
+                              "120"
+                            ]
+                          },
+                          "height": {
+                            "type": "number",
+                            "description": "Height dimension of video format",
+                            "example": 1920
+                          },
+                          "width": {
+                            "type": "number",
+                            "description": "Width dimension of video format",
+                            "example": 1080
+                          },
+                          "interlaced": {
+                            "type": "boolean",
+                            "description": "Is the display format interlaced?",
+                            "example": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/supportedFormats": {
+      "get": {
+        "operationId": "getSystemSupportedFormats",
+        "summary": "Get supported formats.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supportedFormats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "codecs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "example": "BRaw:Q0"
+                            }
+                          },
+                          "frameRates": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "example": "29.97",
+                              "enum": [
+                                "23.98",
+                                "24.00",
+                                "24",
+                                "25.00",
+                                "25",
+                                "29.97",
+                                "30.00",
+                                "30",
+                                "47.95",
+                                "48.00",
+                                "48",
+                                "50.00",
+                                "50",
+                                "59.94",
+                                "60.00",
+                                "60",
+                                "119.88",
+                                "120.00",
+                                "120"
+                              ]
+                            }
+                          },
+                          "maxOffSpeedFrameRate": {
+                            "type": "number",
+                            "example": 60
+                          },
+                          "minOffSpeedFrameRate": {
+                            "type": "number",
+                            "example": 5
+                          },
+                          "recordResolution": {
+                            "type": "object",
+                            "properties": {
+                              "height": {
+                                "type": "number",
+                                "description": "Height of the resolution",
+                                "example": 2160
+                              },
+                              "width": {
+                                "type": "number",
+                                "description": "Width of the resolution",
+                                "example": 3840
+                              }
+                            }
+                          },
+                          "sensorResolution": {
+                            "type": "object",
+                            "properties": {
+                              "height": {
+                                "type": "number",
+                                "description": "Height of the resolution",
+                                "example": 2160
+                              },
+                              "width": {
+                                "type": "number",
+                                "description": "Width of the resolution",
+                                "example": 3840
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/system/format": {
+      "get": {
+        "operationId": "getSystemFormat",
+        "summary": "Get current format.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "codec": {
+                      "type": "string",
+                      "description": "Currently selected codec",
+                      "example": "BRaw:8_1"
+                    },
+                    "frameRate": {
+                      "description": "Frame rate",
+                      "example": "24",
+                      "type": "string",
+                      "enum": [
+                        "23.98",
+                        "24.00",
+                        "24",
+                        "25.00",
+                        "25",
+                        "29.97",
+                        "30.00",
+                        "30",
+                        "47.95",
+                        "48.00",
+                        "48",
+                        "50.00",
+                        "50",
+                        "59.94",
+                        "60.00",
+                        "60",
+                        "119.88",
+                        "120.00",
+                        "120"
+                      ]
+                    },
+                    "maxOffSpeedFrameRate": {
+                      "type": "number",
+                      "example": 60
+                    },
+                    "minOffSpeedFrameRate": {
+                      "type": "number",
+                      "example": 5
+                    },
+                    "offSpeedEnabled": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "offSpeedFrameRate": {
+                      "type": "number",
+                      "example": 60
+                    },
+                    "recordResolution": {
+                      "type": "object",
+                      "properties": {
+                        "height": {
+                          "type": "number",
+                          "description": "Height of the resolution",
+                          "example": 2160
+                        },
+                        "width": {
+                          "type": "number",
+                          "description": "Width of the resolution",
+                          "example": 3840
+                        }
+                      }
+                    },
+                    "sensorResolution": {
+                      "type": "object",
+                      "properties": {
+                        "height": {
+                          "type": "number",
+                          "description": "Height of the resolution",
+                          "example": 2160
+                        },
+                        "width": {
+                          "type": "number",
+                          "description": "Width of the resolution",
+                          "example": 3840
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      },
+      "put": {
+        "operationId": "putSystemFormat",
+        "summary": "Set the format.",
+        "requestBody": {
+          "description": "Update the system format",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "codec": {
+                    "type": "string",
+                    "description": "Currently selected codec",
+                    "example": "BRaw:8_1"
+                  },
+                  "frameRate": {
+                    "description": "Frame rate",
+                    "example": "24",
+                    "type": "string",
+                    "enum": [
+                      "23.98",
+                      "24.00",
+                      "24",
+                      "25.00",
+                      "25",
+                      "29.97",
+                      "30.00",
+                      "30",
+                      "47.95",
+                      "48.00",
+                      "48",
+                      "50.00",
+                      "50",
+                      "59.94",
+                      "60.00",
+                      "60",
+                      "119.88",
+                      "120.00",
+                      "120"
+                    ]
+                  },
+                  "maxOffSpeedFrameRate": {
+                    "type": "number",
+                    "example": 60
+                  },
+                  "minOffSpeedFrameRate": {
+                    "type": "number",
+                    "example": 5
+                  },
+                  "offSpeedEnabled": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "offSpeedFrameRate": {
+                    "type": "number",
+                    "example": 60
+                  },
+                  "recordResolution": {
+                    "type": "object",
+                    "properties": {
+                      "height": {
+                        "type": "number",
+                        "description": "Height of the resolution",
+                        "example": 2160
+                      },
+                      "width": {
+                        "type": "number",
+                        "description": "Width of the resolution",
+                        "example": 3840
+                      }
+                    }
+                  },
+                  "sensorResolution": {
+                    "type": "object",
+                    "properties": {
+                      "height": {
+                        "type": "number",
+                        "description": "Height of the resolution",
+                        "example": 2160
+                      },
+                      "width": {
+                        "type": "number",
+                        "description": "Width of the resolution",
+                        "example": 3840
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "501": {
+            "description": "This functionality is not implemented for the device in use."
+          }
+        }
+      }
+    },
+    "/timelines/0": {
+      "get": {
+        "operationId": "getTimelines0",
+        "summary": "Get the current playback timeline.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clips": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "clipUniqueId": {
+                            "type": "integer",
+                            "description": "Unique ID used to identify this clip",
+                            "example": 1
+                          },
+                          "frameCount": {
+                            "type": "integer",
+                            "description": "Number of frames in this clip on the timeline",
+                            "example": 90000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTimelines0",
+        "summary": "Clear the current playback timeline.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/timelines/0/add": {
+      "post": {
+        "operationId": "postTimelines0Add",
+        "summary": "Add a clip to the end of the timeline.",
+        "requestBody": {
+          "description": "Clip information to add",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "clips": {
+                        "type": "integer",
+                        "description": "Unique ID used to identify this clip",
+                        "example": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "clips": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "description": "Unique ID used to identify this clip"
+                        },
+                        "example": [
+                          1,
+                          2,
+                          3
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0": {
+      "get": {
+        "operationId": "getTransports0",
+        "summary": "Get device's basic transport status.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "description": "Transport mode.",
+                      "enum": [
+                        "InputPreview",
+                        "InputRecord",
+                        "Output"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTransports0",
+        "summary": "Set device's basic transport status.",
+        "requestBody": {
+          "description": "Set the transport mode",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "Transport mode.",
+                    "enum": [
+                      "InputPreview",
+                      "Output"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0/stop": {
+      "get": {
+        "operationId": "getTransports0Stop",
+        "summary": "Determine if transport is stopped.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "True when transport mode is InputPreview or when in Output mode and speed is 0",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTransports0Stop",
+        "summary": "Stop transport.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0/play": {
+      "get": {
+        "operationId": "getTransports0Play",
+        "summary": "Determine if transport is playing.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "True when transport is in Output mode and speed is non-zero",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTransports0Play",
+        "summary": "Start playing on transport.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0/playback": {
+      "get": {
+        "operationId": "getTransports0Playback",
+        "summary": "Get playback state.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "Play",
+                        "Jog",
+                        "Shuttle",
+                        "Var"
+                      ]
+                    },
+                    "loop": {
+                      "type": "boolean",
+                      "description": "When true playback loops from the end of the timeline to the beginning of the timeline"
+                    },
+                    "singleClip": {
+                      "type": "boolean",
+                      "description": "When true playback loops from the end of the current clip to the beginning of the current clip"
+                    },
+                    "speed": {
+                      "type": "number",
+                      "description": "Playback Speed, 1.0 for normal forward playback"
+                    },
+                    "position": {
+                      "type": "integer",
+                      "description": "Playback position on the timeline in units of video frames"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTransports0Playback",
+        "summary": "Set playback state.",
+        "requestBody": {
+          "description": "Update playback state",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Play",
+                      "Jog",
+                      "Shuttle",
+                      "Var"
+                    ]
+                  },
+                  "loop": {
+                    "type": "boolean",
+                    "description": "When true playback loops from the end of the timeline to the beginning of the timeline"
+                  },
+                  "singleClip": {
+                    "type": "boolean",
+                    "description": "When true playback loops from the end of the current clip to the beginning of the current clip"
+                  },
+                  "speed": {
+                    "type": "number",
+                    "description": "Playback Speed, 1.0 for normal forward playback"
+                  },
+                  "position": {
+                    "type": "integer",
+                    "description": "Playback position on the timeline in units of video frames"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0/record": {
+      "get": {
+        "operationId": "getTransports0Record",
+        "summary": "Get record state.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recording": {
+                      "type": "boolean",
+                      "description": "Is transport in Input Record mode"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTransports0Record",
+        "summary": "Set record state.",
+        "requestBody": {
+          "description": "Update record state",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recording": {
+                    "type": "boolean",
+                    "description": "Is transport in Input Record mode"
+                  },
+                  "clipName": {
+                    "type": "string",
+                    "description": "Used to set the requested clipName to record to, when specifying \"recording\" attribute to True"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/transports/0/timecode": {
+      "get": {
+        "operationId": "getTransports0Timecode",
+        "summary": "Get device's timecode.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timecode": {
+                      "type": "number",
+                      "description": "The time of day timecode in units of binary-coded decimal (BCD)."
+                    },
+                    "clip": {
+                      "type": "number",
+                      "description": "The position of the clip timecode in units of binary-coded decimal (BCD)."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transports/0/timecode/source": {
+      "get": {
+        "operationId": "getTransports0TimecodeSource",
+        "summary": "Get timecode source selected on device",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timecode": {
+                      "type": "string",
+                      "enum": [
+                        "Timecode",
+                        "Clip"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/input": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexInput",
+        "summary": "Get the audio input (source and type) for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently selected input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "input": {
+                      "type": "string",
+                      "enum": [
+                        "None",
+                        "Camera - Left",
+                        "Camera - Right",
+                        "Camera - Mono",
+                        "XLR1 - Mic",
+                        "XLR1 - Line",
+                        "XLR2 - Mic",
+                        "XLR2 - Line",
+                        "3.5mm Left - Line",
+                        "3.5mm Left - Mic",
+                        "3.5mm Right - Line",
+                        "3.5mm Right - Mic",
+                        "3.5mm Mono - Line",
+                        "3.5mm Mono - Mic"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putAudioChannelChannelIndexInput",
+        "summary": "Set the audio input for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "enum": [
+                      "None",
+                      "Camera - Left",
+                      "Camera - Right",
+                      "Camera - Mono",
+                      "XLR1 - Mic",
+                      "XLR1 - Line",
+                      "XLR2 - Mic",
+                      "XLR2 - Line",
+                      "3.5mm Left - Line",
+                      "3.5mm Left - Mic",
+                      "3.5mm Right - Line",
+                      "3.5mm Right - Mic",
+                      "3.5mm Mono - Line",
+                      "3.5mm Mono - Mic"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/input/description": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexInputDescription",
+        "summary": "Get the description of the current input of the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Description of the current input of the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gainRange": {
+                      "type": "object",
+                      "properties": {
+                        "Min": {
+                          "description": "The minimum gain value in dB",
+                          "type": "number"
+                        },
+                        "Max": {
+                          "description": "The maximum gain value in dB",
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "capabilities": {
+                      "type": "object",
+                      "properties": {
+                        "PhantomPower": {
+                          "description": "Input supports setting of phantom power",
+                          "type": "boolean"
+                        },
+                        "LowCutFilter": {
+                          "description": "Input supports setting of low cut filter",
+                          "type": "boolean"
+                        },
+                        "Padding": {
+                          "type": "object",
+                          "properties": {
+                            "available": {
+                              "description": "Input supports setting of padding",
+                              "type": "boolean"
+                            },
+                            "forced": {
+                              "description": "Padding is forced to be set for the input",
+                              "type": "boolean"
+                            },
+                            "value": {
+                              "description": "Value of the padding in dB",
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/supportedInputs": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexSupportedInputs",
+        "summary": "Get the list of supported inputs and their availability to switch to for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its supported inputs are being queried. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of supported inputs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supportedInputs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "input": {
+                                "type": "string",
+                                "enum": [
+                                  "None",
+                                  "Camera - Left",
+                                  "Camera - Right",
+                                  "Camera - Mono",
+                                  "XLR1 - Mic",
+                                  "XLR1 - Line",
+                                  "XLR2 - Mic",
+                                  "XLR2 - Line",
+                                  "3.5mm Left - Line",
+                                  "3.5mm Left - Mic",
+                                  "3.5mm Right - Line",
+                                  "3.5mm Right - Mic",
+                                  "3.5mm Mono - Line",
+                                  "3.5mm Mono - Mic"
+                                ]
+                              }
+                            }
+                          },
+                          "available": {
+                            "description": "Is the input available to be switched into from the current input for the selected channel",
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/level": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexLevel",
+        "summary": "Get the audio input level for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently set level for the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The input level of the selected channel. Only one property is required for setting. If both provided, gain will be prioritized and level would be ignored.",
+                  "type": "object",
+                  "properties": {
+                    "gain": {
+                      "type": "number"
+                    },
+                    "normalised": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putAudioChannelChannelIndexLevel",
+        "summary": "Set the audio input level for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The input level of the selected channel. Only one property is required for setting. If both provided, gain will be prioritized and level would be ignored.",
+                "type": "object",
+                "properties": {
+                  "gain": {
+                    "type": "number"
+                  },
+                  "normalised": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/phantomPower": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexPhantomPower",
+        "summary": "Get the audio input phantom power for the selected channel if possible",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently set level for the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "phantomPower": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putAudioChannelChannelIndexPhantomPower",
+        "summary": "Set the audio phantom power for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phantomPower": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Phantom power is not supported for this input"
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/padding": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexPadding",
+        "summary": "Get the audio input padding for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently set padding for the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "padding": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putAudioChannelChannelIndexPadding",
+        "summary": "Set the audio input padding for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "padding": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Padding is not supported for this input"
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/lowCutFilter": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexLowCutFilter",
+        "summary": "Get the audio input low cut filter for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently set low cut filter for the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lowCutFilter": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putAudioChannelChannelIndexLowCutFilter",
+        "summary": "Set the audio input low cut filter for the selected channel",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lowCutFilter": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Low cut filter is not supported for this input"
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/audio/channel/{channelIndex}/available": {
+      "get": {
+        "operationId": "getAudioChannelChannelIndexAvailable",
+        "summary": "Get the audio input's current availability for the selected channel. If unavailable, the source will be muted",
+        "parameters": [
+          {
+            "name": "channelIndex",
+            "in": "path",
+            "description": "The index of the channel that its input is being controlled. (Channels index from 0)",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently set availability for the selected channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel does not exist"
+          }
+        }
+      }
+    },
+    "/colorCorrection/lift": {
+      "get": {
+        "operationId": "getColorCorrectionLift",
+        "summary": "Get color correction lift",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "red": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": -2,
+                      "default": 0
+                    },
+                    "green": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": -2,
+                      "default": 0
+                    },
+                    "blue": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": -2,
+                      "default": 0
+                    },
+                    "luma": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": -2,
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionLift",
+        "summary": "Set color correction lift",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "red": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": -2,
+                    "default": 0
+                  },
+                  "green": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": -2,
+                    "default": 0
+                  },
+                  "blue": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": -2,
+                    "default": 0
+                  },
+                  "luma": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": -2,
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/gamma": {
+      "get": {
+        "operationId": "getColorCorrectionGamma",
+        "summary": "Get color correction gamma",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "red": {
+                      "type": "number",
+                      "maximum": 4,
+                      "minimum": -4,
+                      "default": 0
+                    },
+                    "green": {
+                      "type": "number",
+                      "maximum": 4,
+                      "minimum": -4,
+                      "default": 0
+                    },
+                    "blue": {
+                      "type": "number",
+                      "maximum": 4,
+                      "minimum": -4,
+                      "default": 0
+                    },
+                    "luma": {
+                      "type": "number",
+                      "maximum": 4,
+                      "minimum": -4,
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionGamma",
+        "summary": "Set color correction gamma",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "red": {
+                    "type": "number",
+                    "maximum": 4,
+                    "minimum": -4,
+                    "default": 0
+                  },
+                  "green": {
+                    "type": "number",
+                    "maximum": 4,
+                    "minimum": -4,
+                    "default": 0
+                  },
+                  "blue": {
+                    "type": "number",
+                    "maximum": 4,
+                    "minimum": -4,
+                    "default": 0
+                  },
+                  "luma": {
+                    "type": "number",
+                    "maximum": 4,
+                    "minimum": -4,
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/gain": {
+      "get": {
+        "operationId": "getColorCorrectionGain",
+        "summary": "Get color correction gain",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "red": {
+                      "type": "number",
+                      "maximum": 16,
+                      "minimum": 0,
+                      "default": 0
+                    },
+                    "green": {
+                      "type": "number",
+                      "maximum": 16,
+                      "minimum": 0,
+                      "default": 0
+                    },
+                    "blue": {
+                      "type": "number",
+                      "maximum": 16,
+                      "minimum": 0,
+                      "default": 0
+                    },
+                    "luma": {
+                      "type": "number",
+                      "maximum": 16,
+                      "minimum": 0,
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionGain",
+        "summary": "Set color correction gain",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "red": {
+                    "type": "number",
+                    "maximum": 16,
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "green": {
+                    "type": "number",
+                    "maximum": 16,
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "blue": {
+                    "type": "number",
+                    "maximum": 16,
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "luma": {
+                    "type": "number",
+                    "maximum": 16,
+                    "minimum": 0,
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/offset": {
+      "get": {
+        "operationId": "getColorCorrectionOffset",
+        "summary": "Get color correction offset",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "red": {
+                      "type": "number",
+                      "maximum": 8,
+                      "minimum": -8,
+                      "default": 0
+                    },
+                    "green": {
+                      "type": "number",
+                      "maximum": 8,
+                      "minimum": -8,
+                      "default": 0
+                    },
+                    "blue": {
+                      "type": "number",
+                      "maximum": 8,
+                      "minimum": -8,
+                      "default": 0
+                    },
+                    "luma": {
+                      "type": "number",
+                      "maximum": 8,
+                      "minimum": -8,
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionOffset",
+        "summary": "Set color correction offset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "red": {
+                    "type": "number",
+                    "maximum": 8,
+                    "minimum": -8,
+                    "default": 0
+                  },
+                  "green": {
+                    "type": "number",
+                    "maximum": 8,
+                    "minimum": -8,
+                    "default": 0
+                  },
+                  "blue": {
+                    "type": "number",
+                    "maximum": 8,
+                    "minimum": -8,
+                    "default": 0
+                  },
+                  "luma": {
+                    "type": "number",
+                    "maximum": 8,
+                    "minimum": -8,
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/contrast": {
+      "get": {
+        "operationId": "getColorCorrectionContrast",
+        "summary": "Get color correction contrast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pivot": {
+                      "type": "number",
+                      "maximum": 1,
+                      "minimum": 0,
+                      "default": 0.5
+                    },
+                    "adjust": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": 0,
+                      "default": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionContrast",
+        "summary": "Set color correction contrast",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pivot": {
+                    "type": "number",
+                    "maximum": 1,
+                    "minimum": 0,
+                    "default": 0.5
+                  },
+                  "adjust": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": 0,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/color": {
+      "get": {
+        "operationId": "getColorCorrectionColor",
+        "summary": "Get color correction color properties",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hue": {
+                      "type": "number",
+                      "maximum": 1,
+                      "minimum": -1,
+                      "default": 0
+                    },
+                    "saturation": {
+                      "type": "number",
+                      "maximum": 2,
+                      "minimum": 0,
+                      "default": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionColor",
+        "summary": "Set color correction color properties",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hue": {
+                    "type": "number",
+                    "maximum": 1,
+                    "minimum": -1,
+                    "default": 0
+                  },
+                  "saturation": {
+                    "type": "number",
+                    "maximum": 2,
+                    "minimum": 0,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/colorCorrection/lumaContribution": {
+      "get": {
+        "operationId": "getColorCorrectionLumaContribution",
+        "summary": "Get color correction luma contribution",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lumaContribution": {
+                      "type": "number",
+                      "maximum": 1,
+                      "minimum": 0,
+                      "default": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putColorCorrectionLumaContribution",
+        "summary": "Set color correction luma contribution",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lumaContribution": {
+                    "type": "number",
+                    "maximum": 1,
+                    "minimum": 0,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/lens/iris": {
+      "get": {
+        "operationId": "getLensIris",
+        "summary": "Get lens' aperture",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "continuousApertureAutoExposure": {
+                      "type": "boolean",
+                      "description": "Is Aperture controlled by auto exposure"
+                    },
+                    "apertureStop": {
+                      "type": "number",
+                      "description": "Aperture stop value"
+                    },
+                    "normalised": {
+                      "type": "number",
+                      "description": "Normalised value",
+                      "maximum": 1,
+                      "minimum": 0
+                    },
+                    "apertureNumber": {
+                      "type": "number",
+                      "description": "Aperture number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putLensIris",
+        "summary": "Set lens' aperture",
+        "requestBody": {
+          "description": "Only a single property need to be selected. If multiple provided, the order of priority is (apertureStop > normalised > apertureNumber)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "apertureStop": {
+                    "type": "number",
+                    "description": "Aperture stop value"
+                  },
+                  "normalised": {
+                    "type": "number",
+                    "description": "Normalised value",
+                    "maximum": 1,
+                    "minimum": 0
+                  },
+                  "apertureNumber": {
+                    "type": "number",
+                    "description": "Aperture number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/lens/zoom": {
+      "get": {
+        "operationId": "getLensZoom",
+        "summary": "Get lens' zoom",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "focalLength": {
+                      "type": "integer",
+                      "description": "Focal length in mm"
+                    },
+                    "normalised": {
+                      "type": "number",
+                      "description": "Normalised value",
+                      "maximum": 1,
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putLensZoom",
+        "summary": "Set lens' zoom",
+        "requestBody": {
+          "description": "Only a single property need to be selected. If multiple provided, the order of priority is (focalLength > normalised)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "focalLength": {
+                    "type": "integer",
+                    "description": "Focal length in mm"
+                  },
+                  "normalised": {
+                    "type": "number",
+                    "description": "Normalised value",
+                    "maximum": 1,
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/lens/focus": {
+      "get": {
+        "operationId": "getLensFocus",
+        "summary": "Get lens' focus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "focus": {
+                      "type": "number",
+                      "description": "Normalised value",
+                      "maximum": 1,
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putLensFocus",
+        "summary": "Set lens' focus",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "focus": {
+                    "type": "number",
+                    "description": "Normalised value",
+                    "maximum": 1,
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/lens/focus/doAutoFocus": {
+      "put": {
+        "operationId": "putLensFocusDoAutoFocus",
+        "summary": "Perform auto focus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/presets": {
+      "get": {
+        "operationId": "getPresets",
+        "summary": "Get the list of the presets on the camera",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "presets": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of the presets on the camera"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "postPresets",
+        "summary": "Send a preset file to the camera",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "presetAdded": {
+                      "type": "string",
+                      "description": "Name of the preset uploaded"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/presets/active": {
+      "get": {
+        "operationId": "getPresetsActive",
+        "summary": "Get the list of the presets on the camera",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "preset": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putPresetsActive",
+        "summary": "Set the active preset on the camera",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "preset": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/presets/{presetName}": {
+      "get": {
+        "operationId": "getPresetsPresetName",
+        "summary": "Download the preset file",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetName",
+            "description": "name of the preset file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putPresetsPresetName",
+        "summary": "Update a preset on the camera if it exists, if not create a preset and save current state with the presetName",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetName",
+            "description": "name of the preset file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePresetsPresetName",
+        "summary": "Delete a preset from a camera if exists",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetName",
+            "description": "name of the preset file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video/iso": {
+      "get": {
+        "operationId": "getVideoIso",
+        "summary": "Get current ISO",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "iso": {
+                      "type": "integer",
+                      "description": "Current ISO value",
+                      "maximum": 2147483647,
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoIso",
+        "summary": "Set current ISO",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "iso": {
+                    "type": "integer",
+                    "description": "ISO value to set",
+                    "maximum": 2147483647,
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/gain": {
+      "get": {
+        "operationId": "getVideoGain",
+        "summary": "Get current gain value in decibels",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gain": {
+                      "type": "integer",
+                      "description": "Current gain value in decibels",
+                      "maximum": 128,
+                      "minimum": -128
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoGain",
+        "summary": "Set current gain value",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "gain": {
+                    "type": "integer",
+                    "description": "Gain value in decibels to set",
+                    "maximum": 128,
+                    "minimum": -128
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/whiteBalance": {
+      "get": {
+        "operationId": "getVideoWhiteBalance",
+        "summary": "Get current white balance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "whiteBalance": {
+                      "type": "integer",
+                      "description": "Current white balance",
+                      "maximum": 10000,
+                      "minimum": 2500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoWhiteBalance",
+        "summary": "Set current white balance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "whiteBalance": {
+                    "type": "integer",
+                    "description": "White balance to set",
+                    "maximum": 10000,
+                    "minimum": 2500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/whiteBalance/doAuto": {
+      "put": {
+        "operationId": "putVideoWhiteBalanceDoAuto",
+        "summary": "Set current white balance automatically",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/ndFilter": {
+      "get": {
+        "operationId": "getVideoNdFilter",
+        "summary": "Get ND filter stop",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stop": {
+                      "type": "number",
+                      "description": "Current filter power (fStop)",
+                      "maximum": 15,
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoNdFilter",
+        "summary": "Set ND filter stop",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "stop": {
+                    "type": "number",
+                    "description": "Filter power (fStop) to set",
+                    "maximum": 15,
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/ndFilter/displayMode": {
+      "get": {
+        "operationId": "getVideoNdFilterDisplayMode",
+        "summary": "Get ND filter display mode on the camera",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "displayMode": {
+                      "type": "string",
+                      "enum": [
+                        "Stop",
+                        "Number",
+                        "Fraction"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoNdFilterDisplayMode",
+        "summary": "Set ND filter display mode on the camera",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayMode": {
+                    "type": "string",
+                    "enum": [
+                      "Stop",
+                      "Number",
+                      "Fraction"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/shutter": {
+      "get": {
+        "operationId": "getVideoShutter",
+        "summary": "Get current shutter. Will return either shutter speed or shutter angle depending on shutter measurement in device settings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "continuousShutterAutoExposure": {
+                      "type": "boolean",
+                      "description": "Is shutter controlled by auto exposure"
+                    },
+                    "shutterSpeed": {
+                      "type": "integer",
+                      "description": "Shutter speed value in fractions of a second (minimum is sensor frame rate)",
+                      "maximum": 50000
+                    },
+                    "shutterAngle": {
+                      "type": "integer",
+                      "description": "Shutter angle",
+                      "maximum": 36000,
+                      "minimum": 100
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoShutter",
+        "summary": "Set current shutter",
+        "requestBody": {
+          "description": "Only a single property needs to be selected. If more than one is provided, the order of priority is (shutterSpeed > shutterAngle)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shutterSpeed": {
+                    "type": "integer",
+                    "description": "Shutter speed value in fractions of a second (minimum is sensor frame rate)",
+                    "maximum": 50000
+                  },
+                  "shutterAngle": {
+                    "type": "integer",
+                    "description": "Shutter angle",
+                    "maximum": 36000,
+                    "minimum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video/autoExposure": {
+      "get": {
+        "operationId": "getVideoAutoExposure",
+        "summary": "Get current auto exposure mode",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "type": "object",
+                      "description": "Auto exposure mode",
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "Off",
+                            "Continuous",
+                            "OneShot"
+                          ]
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "",
+                            "Iris",
+                            "Shutter",
+                            "Iris,Shutter",
+                            "Shutter,Iris"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putVideoAutoExposure",
+        "summary": "Set auto exposure",
+        "requestBody": {
+          "description": "Auto exposure mode to set",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "object",
+                    "description": "Auto exposure mode",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "Off",
+                          "Continuous",
+                          "OneShot"
+                        ]
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "",
+                          "Iris",
+                          "Shutter",
+                          "Iris,Shutter",
+                          "Shutter,Iris"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}

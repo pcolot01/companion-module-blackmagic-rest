@@ -1,191 +1,3 @@
-============== Installing on Windows 10 Command prompt ==================
-
-Start node.js command prompt as Administrator
-
-
-REM install chocolatey https://community.chocolatey.org/packages/chocolatey
-
-or
-
-REM upgrade chocolatey
-
-choco upgrade chocolatey      
-
-
-
-REM https://github.com/Schniz/fnm
-
-choco install fnm
-
-
-REM install tools
-
-npm install -g typescript   
-npm install -g axios --loglevel verbose
-npm install -g openapi-client-axios --loglevel verbose
-npm install -g openapi-client-axios-typegen --loglevel verbose
-npm install -g js-yaml --loglevel verbose
-npm install -g fs --loglevel verbose
-npm install -g openapicmd 
-
-
-================= Configuring Command Prompt ===============================
-
-REM configuring current node version
-
-REM cd C:\Users\Home\Documents\Projects\Companion
-node --version > .node-version
-FOR /f "tokens=*" %i IN ('fnm env --use-on-cd') DO CALL %i
-
-
-REM configuring node 18 as default on the project
-REM https://github.com/bitfocus/companion-module-base/wiki
-
-fnm use 18
-fnm default 18
-corepack enable
-
-
-
-============== Blackmagic OpenAPi REST specification ================
-
-This is based on https://www.openapis.org/ specifications.
-
-See the repository https://github.com/pcolot01/BlackmagicRestOpenApi
-
-Tools from https://swagger.io/ and https://openapistack.co/
-
-
-
-========== Server side ===================
-
-
-npm install
-
-npm start
-REM or npm run start
-
-
-
-Try the endpoints:
-
-curl -i http://localhost:9000/lens/iris
-curl -X PUT -i http://localhost:9000/lens/iris -H "Content-Type: application/json" -d "{\"apertureStop\":95.3, \"normalised\":91, \"apertureNumber\":93.2}"
-
-
-============== Annex ================
-
-REM building process
-
-REM defining project structure
-REM Generation of server stub server to simulate the camera
-REM based on https://github.com/openapistack/openapi-backend/tree/main/examples/express-ts-mock
-
-
-REM building process
-
-REM defining project structure
-
-cd MyLocalGitHub
-
-cd server
-
-mkdir src
-
-mkdir src\types
-
-mkdir externals
-
-cd externals
-
-git submodule add https://github.com/pcolot01/BlackmagicRestOpenApi.git BlackmagicRestOpenApi
-
-git submodule update --init --recursive
-
-
-REM initializing old javascript
-
-npm init -y
-
-
-REM defining dependencies
-  
-npm install --save express --loglevel verbose
-npm install --save morgan --loglevel verbose
-npm install --save openapi-backend --loglevel verbose
-npm install --save source-map-support --loglevel verbose
-
-
-REM defining dev dependencies
-
-npm install --save-dev @types/express --loglevel verbose
-npm install --save-dev @types/jest --loglevel verbose
-npm install --save-dev @types/morgan --loglevel verbose
-npm install --save-dev @types/node --loglevel verbose
-npm install --save-dev axios --loglevel verbose
-
-npm install --save-dev concurrently --loglevel verbose
-npm install --save-dev jest --loglevel verbose
-npm install --save-dev nodemon --loglevel verbose
-npm install --save-dev ts-jest --loglevel verbose
-npm install --save-dev tslint --loglevel verbose
-npm install --save-dev typescript --loglevel verbose
-npm install --save-dev wait-on --loglevel verbose
-
-
-REM Defining scripts and checking dependencies  in package.json
-
-{
-  "name": "server",
-  "version": "1.0.0",
-  "description": "Mock server for Blackmagic camera",
-  "author": "",
-  "license": "ISC",
-  "keywords": [],
-  "main": "index.js",
-  "scripts": {
-    "postinstall": "npm run build",
-    "build": "tsc",
-    "watch-build": "tsc -w",
-    "start": "node dist/index.js",
-    "watch-start": "nodemon --delay 2 -w dist/ -x 'npm run start'",
-    "dev": "concurrently -k -p '[{name}]' -n 'typescript,api' -c 'yellow.bold,cyan.bold' npm:watch-build npm:watch-start",
-    "lint": "tslint --format prose --project .",
-    "test": "jest"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "morgan": "^1.10.0",
-    "openapi-backend": "^5.10.5",
-    "source-map-support": "^0.5.21"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.11",
-    "@types/morgan": "^1.9.9",
-    "@types/node": "^20.10.4",
-    "axios": "^1.6.2",
-    "concurrently": "^8.2.2",
-    "jest": "^29.7.0",
-    "nodemon": "^3.0.2",
-    "ts-jest": "^29.1.1",
-    "tslint": "^6.1.3",
-    "typescript": "^5.3.3",
-    "wait-on": "^7.2.0"
-  }
-}
-
-
-REM generate json without dependencies from OpenApi specification
-
-openapi read ../../externals/BlackmagicRestOpenApi/api/1.0.0/CameraControls.yaml --format=json --dereference > ../../externals/BlackmagicRestOpenApi/dist/1.0.0/CameraControls.json
-
-
-REM setup typescript
-
-npx tsc --init 
-
-Edit tsconfig.json with the following values:
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
@@ -199,8 +11,8 @@ Edit tsconfig.json with the following values:
     // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
 
     /* Language and Environment */
-    "target": "es2017",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "lib": ["es7", "esnext.asynciterable"], // [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
     // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
@@ -215,15 +27,9 @@ Edit tsconfig.json with the following values:
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    "moduleResolution": "node", //"node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
+    // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
-    "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
-      ]
-    },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
@@ -249,7 +55,7 @@ Edit tsconfig.json with the following values:
     // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
     // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
     // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
-    // "outDir": "./",                                   /* Specify an output folder for all emitted files. */
+    //"outDir": "./",                                    /* Specify an output folder for all emitted files. */
     // "removeComments": true,                           /* Disable emitting comments. */
     // "noEmit": true,                                   /* Disable emitting files from a compilation. */
     // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
@@ -299,8 +105,5 @@ Edit tsconfig.json with the following values:
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  },
-  "include": [
-    "**/*"
-  ]
+  }
 }

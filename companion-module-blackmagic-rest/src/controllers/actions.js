@@ -1,3 +1,5 @@
+const rest = require('../utils/rest');
+
 module.exports = {
 	initActions: function () {
 		let self = this;
@@ -16,7 +18,7 @@ module.exports = {
 				},
 			],
 			callback: async (event) => {
-				console.log('Hello world!', event.options.num)
+				rest.rest()
 			}
 		}
 
